@@ -15,14 +15,6 @@ import {
 } from "@tanstack/react-table";
 
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-import {
   Table,
   TableBody,
   TableCell,
@@ -33,14 +25,13 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { jobCardStatusKey } from "@/lib/helper";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-export function JobCardsDataTable<TData, TValue>({
+export function LabourDataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
@@ -68,37 +59,15 @@ export function JobCardsDataTable<TData, TValue>({
     <div>
       <div className="flex items-center py-4 justify-between">
         <Input
-          placeholder="Filter Job Cards..."
+          placeholder="Filter Parts"
           value={
-            (table.getColumn("carNumber")?.getFilterValue() as string) ?? ""
+            (table.getColumn("partNumber")?.getFilterValue() as string) ?? ""
           }
           onChange={(event) =>
-            table.getColumn("carNumber")?.setFilterValue(event.target.value)
+            table.getColumn("partNumber")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
-        <div>
-          <Select
-            onValueChange={(value) => {
-              if (value == "999") {
-                table.resetColumnFilters();
-              } else {
-                table.getColumn("jobCardStatus")?.setFilterValue(Number(value));
-              }
-            }}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              {jobCardStatusKey.map((status, index) => (
-                <SelectItem key={index} value={String(status.code)}>
-                  {status.description}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
       </div>
       <div className="rounded-md border">
         <Table>

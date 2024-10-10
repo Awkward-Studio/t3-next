@@ -1,12 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "./ui/input";
-import {
-  CurrentLabour,
-  CurrentPart,
-  Labour,
-  Part,
-} from "@/app/lib/definitions";
-import { amtHelper } from "@/app/lib/helper";
+import { CurrentLabour, CurrentPart, Labour, Part } from "@/lib/definitions";
+import { taxAmtHelper } from "@/lib/helper";
 
 export default function LabourSearch({
   items,
@@ -54,7 +49,7 @@ export default function LabourSearch({
       mrp: item.mrp,
       gst: item.gst,
       quantity: 1,
-      amount: amtHelper(item.mrp, 1, item.gst, "value"),
+      amount: taxAmtHelper(item.mrp, 1, item.gst, "value"),
     };
 
     if (currentLabours) {
@@ -71,14 +66,14 @@ export default function LabourSearch({
 
         currentLabourObj.quantity = currentLabours[findIndex].quantity + 1;
 
-        let newAmt = amtHelper(
+        let newTaxAmt = taxAmtHelper(
           currentLabourObj.mrp,
           currentLabourObj.quantity,
           currentLabourObj.gst,
           "value"
         );
 
-        currentLabourObj.amount = newAmt;
+        currentLabourObj.amount = newTaxAmt;
 
         setCurrentLabour([
           ...arrayFirstHalf,

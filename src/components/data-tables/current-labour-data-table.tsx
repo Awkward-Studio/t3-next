@@ -25,14 +25,8 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, Trash2, X } from "lucide-react";
-import PartsSearch from "@/components/PartsSearch";
-import { amtHelper } from "@/app/lib/helper";
-import {
-  CurrentLabour,
-  CurrentPart,
-  Labour,
-  Part,
-} from "@/app/lib/definitions";
+import { taxAmtHelper } from "@/lib/helper";
+import { CurrentLabour, Labour } from "@/lib/definitions";
 import LabourSearch from "../LabourSearch";
 
 interface DataTableProps<TData, TValue> {
@@ -83,14 +77,14 @@ export function CurrentLabourDataTable<TData, TValue>({
     if (toUpdateQty) {
       toUpdateQty!.quantity = prevQty + toUpdate;
 
-      let newAmt = amtHelper(
+      let newTaxAmt = taxAmtHelper(
         toUpdateQty.mrp,
         toUpdateQty.quantity,
         toUpdateQty.gst,
         "value"
       );
 
-      toUpdateQty.amount = Number(newAmt);
+      toUpdateQty.amount = Number(newTaxAmt);
 
       setCurrentLabour([...arrayFirstHalf, toUpdateQty, ...arraySecondHalf]);
       setIsEdited(true);
@@ -123,18 +117,20 @@ export function CurrentLabourDataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
+                  if (header.id != "quantity") {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  }
                 })}
-                <TableHead key={"handleQuantity"}> </TableHead>
+                <TableHead key={"handleQuantity"}>Quantity</TableHead>
                 <TableHead key={"AMOUNT"}>Amount</TableHead>
                 <TableHead key={"DELETE"}> </TableHead>
               </TableRow>
@@ -147,39 +143,47 @@ export function CurrentLabourDataTable<TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    if (cell.column.id != "quantity") {
+                      return (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      );
+                    }
+                  })}
                   <TableCell key={"handleQuantity"} className="space-x-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => handleQuantityUpdate(row, 1)}
-                    >
-                      <Plus className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => handleQuantityUpdate(row, -1)}
-                    >
-                      <Minus className="h-3 w-3" />
-                    </Button>
+                    <div className="flex flex-row justify-evenly w-full items-center space-x-5">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => handleQuantityUpdate(row, 1)}
+                      >
+                        <Plus className="h-3 w-3" />
+                      </Button>
+                      <div>{row.getValue("quantity")}</div>
+
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => handleQuantityUpdate(row, -1)}
+                      >
+                        <Minus className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </TableCell>
                   <TableCell key={"AMOUNT"}>
-                    {amtHelper(
+                    {taxAmtHelper(
                       row.getValue("mrp"),
                       row.getValue("quantity"),
                       row.getValue("gst")
                     )}
                   </TableCell>
 
-                  {/* <TableCell key={"DELETE"}>
+                  <TableCell key={"DELETE"}>
                     <Button
                       variant="outline"
                       size="icon"
@@ -187,7 +191,7 @@ export function CurrentLabourDataTable<TData, TValue>({
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                  </TableCell> */}
+                  </TableCell>
                 </TableRow>
               ))
             ) : (

@@ -8,13 +8,18 @@ import {
   getJobCardById,
   getTempCarById,
   updateJobCardById,
-} from "@/app/lib/appwrite";
+} from "@/lib/appwrite";
 import { CarFront, User } from "lucide-react";
 import DetailsCard from "@/components/DetailsCard";
 import Link from "next/link";
 import JobDetailsCard from "@/components/JobDetailsCard";
 import { Button } from "@/components/ui/button";
-import { objToStringArr, stringToObj } from "@/app/lib/helper";
+import {
+  amtHelperWithoutTax,
+  calcAllAmts,
+  objToStringArr,
+  stringToObj,
+} from "@/lib/helper";
 import { toast } from "sonner";
 import {
   JobCard,
@@ -23,11 +28,11 @@ import {
   CurrentPart,
   Labour,
   CurrentLabour,
-} from "@/app/lib/definitions";
+} from "@/lib/definitions";
 import {
   currentPartsColumns,
   currentLabourColumns,
-} from "@/app/lib/column-definitions";
+} from "@/lib/column-definitions";
 import { CurrentPartsDataTable } from "@/components/data-tables/current-parts-data-table";
 import JobCardsPageSkeleton from "@/components/skeletons/JobCardPageSkeleton";
 import { CurrentLabourDataTable } from "@/components/data-tables/current-labour-data-table";
@@ -60,6 +65,7 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
     };
 
     updateJobCardStatus();
+    setIsEdited(false);
   }, [isEdited]);
 
   useEffect(() => {
@@ -103,10 +109,26 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
   const saveCurrentPartsAndLbour = async () => {
     console.log("Current Parts - ", currentParts);
     console.log("CURRENT LABOUR - ", currentLabour);
+
     const parts = objToStringArr(currentParts);
     const labour = objToStringArr(currentLabour);
 
-    const isDone = await updateJobCardById(params.jobCardId, parts, labour, 2);
+    const amounts = calcAllAmts(currentParts, currentLabour);
+
+    console.log("THESE ARE THE AMOUNTS - ", amounts);
+
+    const isDone = await updateJobCardById(
+      params.jobCardId,
+      parts,
+      labour,
+      2,
+      amounts.partsAmtPreTax,
+      amounts.partsAmtPostTax,
+      amounts.labourAmtPreTax,
+      amounts.labourAmtPostTax
+    );
+
+    console.log(isDone);
 
     setCurrentJobCardStatus(2);
 

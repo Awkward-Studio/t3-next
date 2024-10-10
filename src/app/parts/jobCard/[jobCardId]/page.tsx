@@ -7,16 +7,16 @@ import {
   getJobCardById,
   getTempCarById,
   updateJobCardById,
-} from "@/app/lib/appwrite";
+} from "@/lib/appwrite";
 import { CarFront, User } from "lucide-react";
 import DetailsCard from "@/components/DetailsCard";
 import Link from "next/link";
 import JobDetailsCard from "@/components/JobDetailsCard";
 import { Button } from "@/components/ui/button";
-import { objToStringArr, stringToObj } from "@/app/lib/helper";
+import { objToStringArr, stringToObj } from "@/lib/helper";
 import { toast } from "sonner";
-import { JobCard, Car, Part, CurrentPart } from "@/app/lib/definitions";
-import { currentPartsColumns } from "@/app/lib/column-definitions";
+import { JobCard, Car, Part, CurrentPart } from "@/lib/definitions";
+import { currentPartsColumns } from "@/lib/column-definitions";
 import { CurrentPartsDataTable } from "@/components/data-tables/current-parts-data-table";
 import JobCardsPageSkeleton from "@/components/skeletons/JobCardPageSkeleton";
 
@@ -62,7 +62,7 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
     console.log("Current Parts - ", currentParts);
     const parts = objToStringArr(currentParts);
 
-    if (jobCard?.jobCardStatus! < 1) {
+    if (jobCard?.jobCardStatus! < 2) {
       const isDone = await updateJobCardById(
         params.jobCardId,
         parts,
@@ -75,7 +75,7 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
         toast("Job Card has been updated \u2705");
       }
     } else {
-      toast("Job Card has been updated \u2705");
+      toast("Job Card has already been processed by the biller");
     }
   };
 

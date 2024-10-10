@@ -9,7 +9,7 @@ export default function SidebarLayout({
   return (
     <section>
       <div className="flex">
-        <Sidebar home="/parts" />
+        <Sidebar home="/security" />
         {/* Include shared UI here e.g. a header or sidebar */}
         <nav></nav>
         <div className="flex justify-center w-full">{children}</div>

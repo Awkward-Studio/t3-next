@@ -15,14 +15,6 @@ import {
 } from "@tanstack/react-table";
 
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-import {
   Table,
   TableBody,
   TableCell,
@@ -33,16 +25,25 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { jobCardStatusKey } from "@/lib/helper";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { purposeOfVisits } from "@/lib/helper";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  povCategories?: string[];
 }
 
-export function JobCardsDataTable<TData, TValue>({
+export function TempCarsDataTable<TData, TValue>({
   columns,
   data,
+  povCategories,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -66,9 +67,9 @@ export function JobCardsDataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center py-4 justify-between">
+      <div className="flex flex-col items-center py-4 justify-between space-y-5">
         <Input
-          placeholder="Filter Job Cards..."
+          placeholder="Filter Cars"
           value={
             (table.getColumn("carNumber")?.getFilterValue() as string) ?? ""
           }
@@ -77,27 +78,25 @@ export function JobCardsDataTable<TData, TValue>({
           }
           className="max-w-sm"
         />
-        <div>
-          <Select
-            onValueChange={(value) => {
-              if (value == "999") {
-                table.resetColumnFilters();
-              } else {
-                table.getColumn("jobCardStatus")?.setFilterValue(Number(value));
-              }
-            }}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              {jobCardStatusKey.map((status, index) => (
-                <SelectItem key={index} value={String(status.code)}>
-                  {status.description}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="w-full">
+          {povCategories && (
+            <Select
+              onValueChange={(value) => {
+                table.getColumn("purposeOfVisit")?.setFilterValue(value);
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Purpose of Visit" />
+              </SelectTrigger>
+              <SelectContent>
+                {povCategories.map((pov, index) => (
+                  <SelectItem key={index} value={pov}>
+                    {pov}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
       </div>
       <div className="rounded-md border">

@@ -5,13 +5,13 @@ import { getCookie } from "cookies-next";
 import DisplayCard from "@/components/DisplayCard";
 import { CarFront, Wrench, ListChecks } from "lucide-react";
 
-import { getAllJobCards } from "../lib/appwrite";
 import { useRouter } from "next/navigation";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { jobCardColumns } from "../lib/column-definitions";
 import { JobCardsDataTable } from "@/components/data-tables/job-cards-data-table";
 import PartsPageSkeleton from "@/components/skeletons/PartsPageSkeleton";
+import { getAllJobCards } from "@/lib/appwrite";
+import { jobCardColumns } from "@/lib/column-definitions";
 
 type Props = {};
 

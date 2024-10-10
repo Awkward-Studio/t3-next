@@ -1,4 +1,6 @@
-import { Client, Account, Databases, Query, ID } from "appwrite";
+import { Client, Account, Databases, Query, ID, Storage } from "appwrite";
+import ImageKit from "imagekit";
+
 export const config = {
   endpoint: "https://cloud.appwrite.io/v1",
   // platform: "com.index.t3",
@@ -9,11 +11,13 @@ export const config = {
   jobCardsCollectionId: "66e80a830013e7a81f31",
   partsCollectionId: "66f6ce58000446f6aeaf",
   labourCollectionId: "66fa5dc6003941f79697",
+  carImagesBucketId: "67053962002be8598a04",
 };
 
 export let client: any;
 export let account: any;
 export let databases: any;
+export let storage: any;
 
 client = new Client();
 client.setEndpoint(config.endpoint).setProject(config.projectId);
@@ -21,6 +25,13 @@ client.setEndpoint(config.endpoint).setProject(config.projectId);
 
 account = new Account(client);
 databases = new Databases(client);
+storage = new Storage(client);
+
+const imagekit = new ImageKit({
+  publicKey: "public_YxeQGi/zYRicR5GdhQu7UwOMAYg=",
+  privateKey: "private_pPkQ38mNRgbbpt9JElST4HPGQfw=",
+  urlEndpoint: "https://ik.imagekit.io/ztq7tvia1",
+});
 
 export const loginUser = async (email: any, password: any) => {
   try {
@@ -67,19 +78,20 @@ export const getCurrentUser = async () => {
   }
 };
 
-export const getAllTempCars = async (statuses: number[]) => {
+export const getAllTempCars = async (statuses?: number[]) => {
   // console.log("Hitting Backend");
-  let finalQuery: any[] = [];
-  if (statuses.length > 1) {
-    let queries: any = [];
-    statuses.map((stat: number) => {
-      queries.push(Query.equal("carStatus", [stat]));
-    });
-    finalQuery = [Query.or(queries)];
-  } else {
-    finalQuery = [Query.equal("carStatus", statuses[0])];
+  let finalQuery: any[] = [Query.orderDesc("$createdAt")];
+  if (statuses) {
+    if (statuses.length > 1) {
+      let queries: any = [];
+      statuses.map((stat: number) => {
+        queries.push(Query.equal("carStatus", [stat]));
+      });
+      finalQuery = [...finalQuery, Query.or(queries)];
+    } else {
+      finalQuery = [...finalQuery, Query.equal("carStatus", statuses[0])];
+    }
   }
-
   try {
     let result = await databases.listDocuments(
       config.databaseId,
@@ -97,17 +109,15 @@ export const createCar = async (
   carNumber: String,
   carMake: String,
   carModel: String,
-  // customerName: String,
-  // customerPhone: String,
   purposeOfVisit: String,
-  location: String
+  location?: String
 ) => {
   try {
     let carsResult = await databases.createDocument(
       config.databaseId,
       config.carsCollectionId,
       ID.unique(),
-      { carNumber, carMake, carModel, location, purposeOfVisit }
+      { carNumber, carMake, carModel, purposeOfVisit, location }
     );
     // console.log("The created Car is - ", result);
     return carsResult;
@@ -122,8 +132,8 @@ export const createTempCar = async (
   carMake: String,
   carModel: String,
   purposeOfVisit: String,
-  location: String,
-  carsTableId: string
+  carsTableId: string,
+  location?: String
 ) => {
   try {
     let carStatus = 0;
@@ -152,11 +162,16 @@ export const createTempCar = async (
 export const createJobCard = async (
   carId: string,
   carNumber: string,
+  images: string[],
+  carOdometer: string,
+  carFuel: string,
   diagnosis: string[],
   customerName: string,
   customerPhone: string,
+  customerAddress: string,
   sendToPartsManager: boolean,
-  carsTableId: string
+  carsTableId: string,
+  jobCardNumber: number
 ) => {
   try {
     let result = await databases.createDocument(
@@ -171,6 +186,11 @@ export const createJobCard = async (
         jobCardStatus: 0,
         customerName,
         customerPhone,
+        jobCardNumber,
+        images,
+        carFuel,
+        carOdometer,
+        customerAddress,
       }
     );
 
@@ -200,7 +220,12 @@ export const createJobCard = async (
       config.databaseId,
       config.carsCollectionId,
       carsTableId,
-      { allJobCards: tempJobCards, customerName, customerPhone }
+      {
+        allJobCards: tempJobCards,
+        customerName,
+        customerPhone,
+        customerAddress,
+      }
     );
 
     console.log("The created Job Card is - ", result);
@@ -211,16 +236,21 @@ export const createJobCard = async (
   }
 };
 
-export const searchTempCar = async (searchTerm: string, statuses: number[]) => {
-  let finalQuery: any[];
-  if (statuses.length > 1) {
-    let queries: any = [];
-    statuses.map((stat: number) => {
-      queries.push(Query.equal("carStatus", [stat]));
-    });
-    finalQuery = [Query.or(queries)];
-  } else {
-    finalQuery = [Query.equal("carStatus", statuses[0])];
+export const searchTempCar = async (
+  searchTerm: string,
+  statuses?: number[]
+) => {
+  let finalQuery: any[] = [];
+  if (statuses) {
+    if (statuses.length > 1) {
+      let queries: any = [];
+      statuses.map((stat: number) => {
+        queries.push(Query.equal("carStatus", [stat]));
+      });
+      finalQuery = [Query.or(queries)];
+    } else {
+      finalQuery = [Query.equal("carStatus", statuses[0])];
+    }
   }
   try {
     let result = await databases.listDocuments(
@@ -268,16 +298,16 @@ export const searchCarHistory = async (searchTerm: string) => {
 
 export const getAllJobCards = async (statuses?: number[]) => {
   // console.log("Hitting Backend");
-  let finalQuery: any[] = [];
+  let finalQuery: any[] = [Query.orderDesc("$createdAt")];
   if (statuses) {
     if (statuses.length > 1) {
       let queries: any = [];
       statuses.map((stat: number) => {
         queries.push(Query.equal("jobCardStatus", [stat]));
       });
-      finalQuery = [Query.or(queries)];
+      finalQuery = [...finalQuery, Query.or(queries)];
     } else {
-      finalQuery = [Query.equal("jobCardStatus", statuses[0])];
+      finalQuery = [...finalQuery, Query.equal("jobCardStatus", statuses[0])];
     }
   }
 
@@ -344,14 +374,28 @@ export const updateJobCardById = async (
   id: string,
   parts?: string[],
   labour?: string[],
-  jobCardStatus?: number
+  jobCardStatus?: number,
+  partsTotalPreTax?: number,
+  partsTotalPostTax?: number,
+  labourTotalPreTax?: number,
+  labourTotalPostTax?: number
 ) => {
+  if (parts) {
+  }
   try {
     await databases.updateDocument(
       config.databaseId,
       config.jobCardsCollectionId, // collectionId
       id, // documentId
-      { parts, labour, jobCardStatus } // data (optional)
+      {
+        parts,
+        labour,
+        jobCardStatus,
+        partsTotalPreTax,
+        partsTotalPostTax,
+        labourTotalPreTax,
+        labourTotalPostTax,
+      } // data (optional)
     );
     return true;
   } catch (error: any) {
@@ -374,4 +418,39 @@ export const getAllLabour = async () => {
     console.log(error.message);
     return null;
   }
+};
+
+export const uploadCarImage = async (file: any) => {
+  // console.log("Hitting Backend");
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let uniqueStr = "";
+
+  for (let i = 0; i <= 6; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    uniqueStr += characters.charAt(randomIndex);
+  }
+
+  return new Promise((resolve, reject) => {
+    try {
+      imagekit.upload(
+        {
+          file: file, //required
+          fileName: uniqueStr + ".jpg", //required
+        },
+        (err, result) => {
+          if (err) {
+            console.error("Upload error:", err);
+            reject(err);
+          }
+          console.log("Uploaded file result:", result);
+          // setUploadUrl(result.url); // Set the URL of the uploaded image
+          resolve(result);
+        }
+      );
+    } catch (error: any) {
+      console.log(error.message);
+      reject(null);
+    }
+  });
 };

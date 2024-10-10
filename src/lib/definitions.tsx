@@ -41,6 +41,11 @@ export interface JobCard {
   customerPhone: string;
   parts: string[];
   labour: string[];
+  partsTotalPreTax: number;
+  partsTotalPostTax: number;
+  labourTotalPreTax: number;
+  labourTotalPostTax: number;
+  jobCardNumber: number;
   $id: string;
   $createdAt: string;
   $updatedAt: string;
@@ -82,4 +87,27 @@ export type CurrentLabour = {
   gst: number;
   quantity: number;
   amount: number;
+};
+
+export type TempCar = {
+  carNumber: string;
+  carMake: string;
+  carModel: string;
+  location: string;
+  purposeOfVisit: string;
+  jobCardId: null | number;
+  carStatus: number;
+  carsTableId: null | number;
+  $id: string;
+  $createdAt: string;
+  $updatedAt: string;
+  $permissions: string[];
+  $databaseId: string;
+  $collectionId: string;
+};
+
+export type ImageObj = {
+  imageType: string;
+  thumbnailURL: string;
+  imageURL: string;
 };
