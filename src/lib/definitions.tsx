@@ -41,6 +41,11 @@ export interface JobCard {
   customerPhone: string;
   parts: string[];
   labour: string[];
+  partsTotalPreTax: number;
+  partsTotalPostTax: number;
+  labourTotalPreTax: number;
+  labourTotalPostTax: number;
+  jobCardNumber: number;
   $id: string;
   $createdAt: string;
   $updatedAt: string;
@@ -84,45 +89,25 @@ export type CurrentLabour = {
   amount: number;
 };
 
-
-// CarDTO
-export interface CarDTO {
+export type TempCar = {
   carNumber: string;
   carMake: string;
   carModel: string;
-  purposeOfVisit: string;
   location: string;
-}
-
-// TempCarDTO
-export interface TempCarDTO {
-  carNumber: string;
-  carMake: string;
-  carModel: string;
   purposeOfVisit: string;
-  location: string;
-  carsTableId: string;
-  carStatus?: number; 
-}
+  jobCardId: null | number;
+  carStatus: number;
+  carsTableId: null | number;
+  $id: string;
+  $createdAt: string;
+  $updatedAt: string;
+  $permissions: string[];
+  $databaseId: string;
+  $collectionId: string;
+};
 
-// JobCardDTO
-export interface CreateJobCardDTO {
-  carId: string;
-  diagnosis: string[];
-  customerName: string;
-  customerPhone: string;
-  sendToPartsManager: boolean;
-  carsTableId: string; // Used to update car history
-}
-
-// UpdateJobCardDTO
-export interface UpdateJobCardDTO {
-  parts?: string[]; // Optional
-  labour?: string[]; // Optional
-  jobCardStatus?: number; // Optional
-}
-
-export const STATUS_FIELDS = {
-  CAR_STATUS: "carStatus",
-  JOB_CARD_STATUS: "jobCardStatus",
+export type ImageObj = {
+  imageType: string;
+  thumbnailURL: string;
+  imageURL: string;
 };

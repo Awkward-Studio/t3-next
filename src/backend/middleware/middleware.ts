@@ -26,9 +26,17 @@ export async function middleware(request: NextRequest) {
         redirectURL = "/biller";
         break;
 
+      case "security":
+        redirectURL = "/security";
+        break;
+      case "service":
+        redirectURL = "/service";
+        break;
+
       default:
         break;
     }
+
     console.log("REDIRECTING TO - ", redirectURL);
     console.log(path.startsWith(redirectURL));
 
@@ -44,5 +52,12 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/parts/:path*", "/biller/:path*", "/"],
+  matcher: [
+    "/parts/:path*",
+    "/biller/:path*",
+    "/security/:path*",
+
+    "/service/:path*",
+    "/",
+  ],
 };

@@ -2,14 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { getAllJobCards, logoutUser } from "../lib/appwrite";
 import { deleteCookie, getCookie } from "cookies-next";
 import PrimaryButton from "@/components/PrimaryButton";
 import { JobCardsDataTable } from "@/components/data-tables/job-cards-data-table";
 import DisplayCard from "@/components/DisplayCard";
 import PartsPageSkeleton from "@/components/skeletons/PartsPageSkeleton";
 import { CarFront, Wrench, ListChecks } from "lucide-react";
-import { jobCardColumns } from "../lib/column-definitions";
+import { jobCardColumns } from "@/lib/column-definitions";
+import { getAllJobCards } from "@/lib/appwrite";
 
 type Props = {};
 

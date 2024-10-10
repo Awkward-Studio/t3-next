@@ -40,6 +40,13 @@ function Login({}: Props) {
         redirectURL = "/biller";
         break;
 
+      case "security":
+        redirectURL = "/security";
+        break;
+      case "service":
+        redirectURL = "/service";
+        break;
+
       default:
         break;
     }
@@ -72,7 +79,7 @@ function Login({}: Props) {
           id="email"
           name="email"
           placeholder="Enter your Email"
-          className="border-2 border-gray-400 bg-transparent placeholder-gray-400 p-3 w-1/4 rounded-xl"
+          className="border-2 border-gray-400 bg-transparent placeholder-gray-400 p-3 w-[80%] lg:w-1/4 rounded-xl"
           onChange={(e) => setEmail(e.target.value)}
         ></input>
         <input
@@ -81,7 +88,7 @@ function Login({}: Props) {
           id="password"
           name="password"
           placeholder="Enter your Password"
-          className="border-2 border-gray-400 bg-transparent placeholder-gray-400 p-3 w-1/4 rounded-xl"
+          className="border-2 border-gray-400 bg-transparent placeholder-gray-400 p-3 w-[80%] lg:w-1/4 rounded-xl"
           onChange={(e) => setPassword(e.target.value)}
         ></input>
       </div>

@@ -1,7 +1,7 @@
 import Sidebar from "@/components/Sidebar";
 import { Toaster } from "@/components/ui/sonner";
 
-export default function PartsLayout({
+export default function SidebarLayout({
   children, // will be a page or nested layout
 }: {
   children: React.ReactNode;

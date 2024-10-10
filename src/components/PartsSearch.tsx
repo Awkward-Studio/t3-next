@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "./ui/input";
-import { CurrentPart, Part } from "@/app/lib/definitions";
-import { amtHelper } from "@/app/lib/helper";
+import { CurrentPart, Part } from "@/lib/definitions";
+import { taxAmtHelper } from "@/lib/helper";
 
 export default function PartsSearch({
   items,
@@ -49,7 +49,7 @@ export default function PartsSearch({
       mrp: item.mrp,
       gst: item.gst,
       quantity: 1,
-      amount: amtHelper(item.mrp, 1, item.gst, "value"),
+      amount: taxAmtHelper(item.mrp, 1, item.gst, "value"),
     };
 
     if (currentParts) {
@@ -62,14 +62,14 @@ export default function PartsSearch({
 
         currentPartObj.quantity = currentParts[findIndex].quantity + 1;
 
-        let newAmt = amtHelper(
+        let newTaxAmt = taxAmtHelper(
           currentPartObj.mrp,
           currentPartObj.quantity,
           currentPartObj.gst,
           "value"
         );
 
-        currentPartObj.amount = newAmt;
+        currentPartObj.amount = newTaxAmt;
 
         setCurrentParts([
           ...arrayFirstHalf,
