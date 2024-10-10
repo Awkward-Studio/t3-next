@@ -7,7 +7,7 @@ import { setCookie, deleteCookie } from "cookies-next";
 // import { loginUser, listSessions, logoutUser } from "@/lib/appwrite";
 import { useRouter } from "next/navigation";
 import PrimaryButton from "./PrimaryButton";
-import { loginUser, logoutUser } from "@/app/lib/appwrite";
+import { loginUser, logoutUser } from "@/backend/auth/authentication";
 
 // import { checkUserAccess } from "@/helpers/auth";
 
@@ -29,7 +29,7 @@ function Login({}: Props) {
     setCookie("user", JSON.stringify(userDetails));
     console.log("COOKIE SET");
 
-    const userAccess = userDetails.labels[0];
+    const userAccess = userDetails?.labels[0];
     let redirectURL = "/";
 
     switch (userAccess) {

@@ -65,17 +65,6 @@ export const getCurrentUser = async () => {
   }
 };
 
-export const getAllTempCars = async (statuses: number[]) => {
-  // console.log("Hitting Backend");
-  let finalQuery: any[] = buildStatusQuery(statuses, FIELDS.CAR_STATUS);
-  try {
-    let result = await listDocuments(config.tempCarsCollectionId, finalQuery);
-    return result;
-  } catch (error: any) {
-    return handleError(error);
-  }
-};
-
 export const createCar = async (
   carNumber: String,
   carMake: String,
@@ -98,6 +87,18 @@ export const createCar = async (
     return handleError(error);
   }
 };
+
+export const getAllTempCars = async (statuses: number[]) => {
+  // console.log("Hitting Backend");
+  let finalQuery: any[] = buildStatusQuery(statuses, FIELDS.CAR_STATUS);
+  try {
+    let result = await listDocuments(config.tempCarsCollectionId, finalQuery);
+    return result;
+  } catch (error: any) {
+    return handleError(error);
+  }
+};
+
 
 export const createTempCar = async (
   carNumber: String,
@@ -125,6 +126,41 @@ export const createTempCar = async (
     );
     // console.log("The created Car is - ", result);
     return carsResult;
+  } catch (error: any) {
+    return handleError(error);
+  }
+};
+
+
+export const searchTempCar = async (searchTerm: string, statuses: number[]) => {
+  let finalQuery: any[] = buildStatusQuery(statuses, FIELDS.CAR_STATUS);
+  try {
+    let result = await listDocuments(config.tempCarsCollectionId, [Query.contains("carNumber", [searchTerm]), finalQuery]);
+    return result;
+  } catch (error: any) {
+    return handleError(error);
+  }
+};
+
+export const deleteTempCar = async (carId: string) => {
+  try {
+    let result = await databases.deleteDocument(
+      config.databaseId,
+      config.tempCarsCollectionId,
+      carId
+    );
+    // console.log("THE SEARCHED CARS -", result);
+    return result;
+  } catch (error: any) {
+    return handleError(error);
+  }
+};
+
+export const searchCarHistory = async (searchTerm: string) => {
+  try {
+    let result = await listDocuments(config.carsCollectionId, [Query.contains("carNumber", [searchTerm])]);
+    // console.log("THE SEARCHED CARS -", result);
+    return result;
   } catch (error: any) {
     return handleError(error);
   }
@@ -190,41 +226,6 @@ export const createJobCard = async (
     return handleError(error);
   }
 };
-
-export const searchTempCar = async (searchTerm: string, statuses: number[]) => {
-  let finalQuery: any[] = buildStatusQuery(statuses, FIELDS.CAR_STATUS);
-  try {
-    let result = await listDocuments(config.tempCarsCollectionId, [Query.contains("carNumber", [searchTerm]), finalQuery]);
-    return result;
-  } catch (error: any) {
-    return handleError(error);
-  }
-};
-
-export const deleteTempCar = async (carId: string) => {
-  try {
-    let result = await databases.deleteDocument(
-      config.databaseId,
-      config.tempCarsCollectionId,
-      carId
-    );
-    // console.log("THE SEARCHED CARS -", result);
-    return result;
-  } catch (error: any) {
-    return handleError(error);
-  }
-};
-
-export const searchCarHistory = async (searchTerm: string) => {
-  try {
-    let result = await listDocuments(config.carsCollectionId, [Query.contains("carNumber", [searchTerm])]);
-    // console.log("THE SEARCHED CARS -", result);
-    return result;
-  } catch (error: any) {
-    return handleError(error);
-  }
-};
-
 export const getAllJobCards = async (statuses?: number[]) => {
   // console.log("Hitting Backend");
   let finalQuery: any[] = statuses ? buildStatusQuery(statuses, FIELDS.JOB_CARD_STATUS): [];
@@ -245,6 +246,25 @@ export const getJobCardById = async (id: string) => {
       id
     );
     return result;
+  } catch (error: any) {
+    return handleError(error);
+  }
+};
+
+export const updateJobCardById = async (
+  id: string,
+  parts?: string[],
+  labour?: string[],
+  jobCardStatus?: number
+) => {
+  try {
+    await databases.updateDocument(
+      config.databaseId,
+      config.jobCardsCollectionId, // collectionId
+      id, // documentId
+      { parts, labour, jobCardStatus } // data (optional)
+    );
+    return true;
   } catch (error: any) {
     return handleError(error);
   }
@@ -274,24 +294,6 @@ export const getAllParts = async () => {
   }
 };
 
-export const updateJobCardById = async (
-  id: string,
-  parts?: string[],
-  labour?: string[],
-  jobCardStatus?: number
-) => {
-  try {
-    await databases.updateDocument(
-      config.databaseId,
-      config.jobCardsCollectionId, // collectionId
-      id, // documentId
-      { parts, labour, jobCardStatus } // data (optional)
-    );
-    return true;
-  } catch (error: any) {
-    return handleError(error);
-  }
-};
 
 export const getAllLabour = async () => {
   // console.log("Hitting Backend");

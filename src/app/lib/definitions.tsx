@@ -83,3 +83,46 @@ export type CurrentLabour = {
   quantity: number;
   amount: number;
 };
+
+
+// CarDTO
+export interface CarDTO {
+  carNumber: string;
+  carMake: string;
+  carModel: string;
+  purposeOfVisit: string;
+  location: string;
+}
+
+// TempCarDTO
+export interface TempCarDTO {
+  carNumber: string;
+  carMake: string;
+  carModel: string;
+  purposeOfVisit: string;
+  location: string;
+  carsTableId: string;
+  carStatus?: number; 
+}
+
+// JobCardDTO
+export interface CreateJobCardDTO {
+  carId: string;
+  diagnosis: string[];
+  customerName: string;
+  customerPhone: string;
+  sendToPartsManager: boolean;
+  carsTableId: string; // Used to update car history
+}
+
+// UpdateJobCardDTO
+export interface UpdateJobCardDTO {
+  parts?: string[]; // Optional
+  labour?: string[]; // Optional
+  jobCardStatus?: number; // Optional
+}
+
+export const STATUS_FIELDS = {
+  CAR_STATUS: "carStatus",
+  JOB_CARD_STATUS: "jobCardStatus",
+};
