@@ -1,4 +1,4 @@
-import { CurrentLabour, CurrentPart } from "./definitions";
+import { CurrentLabour, CurrentPart, UserType } from "./definitions";
 
 export const jobCardStatusKey = [
   { code: 999, description: "All" },
@@ -221,6 +221,38 @@ export const carMakeModels = [
   },
 ];
 
+export const policyProviders = [
+  "Acko General Insurance Co. Ltd.",
+  "Bajaj Allianz General Insurance",
+  "Bharti AXA General Insurance Company Ltd.",
+  "CHOLAMANDALAM MS GENERAL INSURANCE COMPANY LTD",
+  "Go Digit General Insurance Ltd.",
+  "Edelweiss General Insurance Co. Ltd.",
+  "Future Generali General Insurance",
+  "Iffco Tokio General Insurance Co. Ltd.",
+  "Kotak Mahindra General Insurance Co. Ltd.",
+  "LIBERTY GENERAL INSURANCE LIMITED",
+  "NATIONAL INSURANCE COMPANY LIMITED",
+  "THE NEW INDIA ASSURANCE CO LTD",
+  "The Oriental Insurance Co. Ltd.",
+  "Raheja QBE General Insurance Co. Ltd.",
+  "Reliance General Insurance Co Ltd",
+  "SBI General Insurance Co. Ltd.",
+  "Shriram General Insurance Co. Ltd.",
+  "Tata AIG General Insurance Co. Ltd.",
+  "United India Insurance Co. Ltd.",
+  "Universal Sompo General Insurance Co. Ltd.",
+  "HDFC ERGO GEN INS CO LTD",
+  "ICICI LOMBARD GENERAL INS CO LTD",
+  "Royal Sundaram General Insurance Co. Ltd.",
+  "OLA FLEET TECHNOLOGIES PVT LTD",
+  "Magma HDI General Insurance Co. Ltd.",
+  "Navi General Insurance Ltd.",
+  "National Insurance Company Ltd",
+  "ZUNO GENERAL INSURANCE LIMITED",
+  "ZURICH KOTAK GENERAL INSURANCE COMPANY (INDIA) LIMITED",
+];
+
 export const getAllCarMakes = () => {
   let makes: string[] = [];
 
@@ -233,12 +265,18 @@ export const taxAmtHelper = (
   price: number,
   quantity: number,
   gst: number,
+  discount?: number,
   value?: string
 ) => {
   // console.log("QUANTITY", quantity);
   let amtPreGst = price * quantity;
+
+  if (discount) {
+    amtPreGst = amtPreGst * (1 - discount / 100);
+  }
+
   let amtPostGst = amtPreGst * (1 + gst / 100);
-  amtPostGst = Math.round(amtPostGst * 100) / 100;
+  amtPostGst = roundToTwoDecimals(Number(amtPostGst));
 
   if (value) {
     return amtPostGst;
@@ -247,8 +285,18 @@ export const taxAmtHelper = (
   }
 };
 
-export const amtHelperWithoutTax = (price: number, quantity: number) => {
+export const amtHelperWithoutTax = (
+  price: number,
+  quantity: number,
+  discount?: number
+) => {
   let amtPreGst = price * quantity;
+  if (discount) {
+    amtPreGst = amtPreGst * (1 - discount / 100);
+  }
+
+  amtPreGst = roundToTwoDecimals(Number(amtPreGst));
+
   return amtPreGst;
 };
 
@@ -299,7 +347,8 @@ export const calcAllAmts = (parts: CurrentPart[], labour: CurrentLabour[]) => {
 
   parts.map((part: any) => {
     partsAmtPreTax =
-      partsAmtPreTax + amtHelperWithoutTax(part.mrp, part.quantity);
+      partsAmtPreTax +
+      amtHelperWithoutTax(part.mrp, part.quantity, part.discount);
     partsAmtPostTax = partsAmtPostTax + part.amount;
   });
 
@@ -309,7 +358,32 @@ export const calcAllAmts = (parts: CurrentPart[], labour: CurrentLabour[]) => {
     labourAmtPostTax = labourAmtPostTax + work.amount;
   });
 
+  partsAmtPreTax = roundToTwoDecimals(Number(partsAmtPreTax));
+  partsAmtPostTax = roundToTwoDecimals(Number(partsAmtPostTax));
+  labourAmtPreTax = roundToTwoDecimals(Number(labourAmtPreTax));
+  labourAmtPostTax = roundToTwoDecimals(Number(labourAmtPostTax));
+
   return { partsAmtPreTax, partsAmtPostTax, labourAmtPreTax, labourAmtPostTax };
+};
+
+export const getUserAccess = (user: UserType) => {
+  // console.log("USER ACCESS - ", user);
+  return user.labels[0];
+};
+
+export const splitInsuranceAmt = (amount: number, insurance: number) => {
+  // console.log("USER ACCESS - ", user);
+  let insuranceAmt = (insurance / 100) * amount;
+  let customerAmt = amount - insuranceAmt;
+
+  insuranceAmt = roundToTwoDecimals(Number(insuranceAmt));
+  customerAmt = roundToTwoDecimals(Number(customerAmt));
+
+  return { insuranceAmt, customerAmt };
+};
+
+export const roundToTwoDecimals = (num: number) => {
+  return Math.round(num * 100) / 100;
 };
 
 // Running repair

@@ -49,7 +49,7 @@ export default function LabourSearch({
       mrp: item.mrp,
       gst: item.gst,
       quantity: 1,
-      amount: taxAmtHelper(item.mrp, 1, item.gst, "value"),
+      amount: taxAmtHelper(item.mrp, 1, item.gst, 0, "value"),
     };
 
     if (currentLabours) {
@@ -70,6 +70,7 @@ export default function LabourSearch({
           currentLabourObj.mrp,
           currentLabourObj.quantity,
           currentLabourObj.gst,
+          0,
           "value"
         );
 

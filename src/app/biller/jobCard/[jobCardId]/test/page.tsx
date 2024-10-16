@@ -6,7 +6,7 @@ import logo from "../../../../../../public/assets/Logomark.png";
 import { usePathname } from "next/navigation";
 import { getJobCardById, getTempCarById } from "@/lib/appwrite";
 import { Car, CurrentLabour, CurrentPart, JobCard } from "@/lib/definitions";
-import { stringToObj } from "@/lib/helper";
+import { roundToTwoDecimals, stringToObj } from "@/lib/helper";
 
 export default function page() {
   const pathname = usePathname();
@@ -42,7 +42,7 @@ export default function page() {
   }, []);
 
   return (
-    <div className="flex  flex-col max-w-4xl mx-auto p-8 bg-white border border-gray-300">
+    <div className="flex  flex-col w-[90%] mx-auto p-8 bg-white border border-gray-300">
       {jobCard && parts && labour && (
         <>
           <div className="text-center mb-8">
@@ -63,8 +63,8 @@ export default function page() {
 
           <div className="mb-6 text-center font-bold">Tax Invoice</div>
 
-          <div className="flex flex-row justify-evenly space-x-3 text-xs font-semibold mb-10">
-            <div className="border border-black h-fit">
+          <div className="flex flex-row justify-evenly text-md font-semibold mb-10 w-full">
+            <div className="border border-black h-fit w-[30%]">
               <table className="table-auto border-collapse w-full">
                 <thead>
                   <tr className="bg-gray-200 border border-black">
@@ -102,7 +102,7 @@ export default function page() {
                 </tbody>
               </table>
             </div>
-            <div className="border h-fit border-black">
+            <div className="border h-fit border-black w-[30%]">
               <table className="table-auto border-collapse w-full">
                 <thead>
                   <tr className="bg-gray-200 border border-black">
@@ -131,7 +131,7 @@ export default function page() {
                 </tbody>
               </table>
             </div>
-            <div className="border border-black h-fit">
+            <div className="border border-black h-fit w-[30%]">
               <table className="table-auto border-collapse w-full">
                 <thead>
                   <tr className="bg-gray-200 border border-black">
@@ -159,14 +159,20 @@ export default function page() {
                     </td>
                   </tr>
                   <tr className="border border-black">
-                    <td className=" border border-black font-bold">SO No.:</td>
-                    <td className=" border border-black">7722</td>
+                    <td className=" border border-black font-bold">
+                      Job Card No:
+                    </td>
+                    <td className=" border border-black">
+                      {jobCard.jobCardNumber}
+                    </td>
                   </tr>
                   <tr className="border border-black">
                     <td className=" border border-black font-bold">
                       Service Type:
                     </td>
-                    <td className=" border border-black">PAID</td>
+                    <td className=" border border-black">
+                      {car?.purposeOfVisit}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -180,7 +186,7 @@ export default function page() {
                   <tr className="bg-gray-200 border border-black">
                     <th
                       className="text-center font-bold  border border-black"
-                      colSpan={10}
+                      colSpan={9}
                     >
                       Parts
                     </th>
@@ -194,7 +200,6 @@ export default function page() {
                     <th className="p-1 border border-black">Quantity</th>
                     <th className="p-1 border border-black">Rate</th>
                     <th className="p-1 border border-black">Disc (%)</th>
-                    <th className="p-1 border border-black">Disc Amount</th>
                     <th className="p-1 border border-black">Amount</th>
                   </tr>
                 </thead>
@@ -210,13 +215,15 @@ export default function page() {
                           {part.partName}
                         </td>
                         <td className="p-1 border border-black">{part.gst}</td>
-                        <td className="p-1 border border-black">-</td>
+                        <td className="p-1 border border-black">{part.hsn}</td>
                         <td className="p-1 border border-black">
                           {part.quantity}
                         </td>
                         <td className="p-1 border border-black">{part.mrp}</td>
-                        <td className="p-1 border border-black">-</td>
-                        <td className="p-1 border border-black">-</td>
+                        <td className="p-1 border border-black">
+                          {part.discount}
+                        </td>
+
                         <td className="p-1 border border-black">
                           {part.amount}
                         </td>
@@ -227,7 +234,7 @@ export default function page() {
                   <tr className="bg-gray-200 border border-black">
                     <td
                       className="text-right font-medium border border-black"
-                      colSpan={9}
+                      colSpan={8}
                     >
                       Subtotal
                     </td>
@@ -383,13 +390,12 @@ export default function page() {
                       Total GST Amount:
                     </td>
                     <td className=" border border-black px-3">
-                      {Math.round(
-                        (jobCard.partsTotalPostTax -
+                      {roundToTwoDecimals(
+                        jobCard.partsTotalPostTax -
                           jobCard.partsTotalPreTax +
                           (jobCard.labourTotalPostTax -
-                            jobCard.labourTotalPreTax)) *
-                          100
-                      ) / 100}
+                            jobCard.labourTotalPreTax)
+                      )}
                     </td>
                   </tr>
                   <tr className="border border-black">
@@ -398,8 +404,9 @@ export default function page() {
                     </td>
                     <td className=" border border-black px-3">
                       {Math.round(
-                        jobCard.partsTotalPostTax +
-                          jobCard.labourTotalPostTax * 100
+                        (jobCard.partsTotalPostTax +
+                          jobCard.labourTotalPostTax) *
+                          100
                       ) / 100}
                     </td>
                   </tr>
@@ -407,7 +414,7 @@ export default function page() {
                     <td className=" border bg-gray-200 border-black font-bold">
                       TOTAL (rounded off):
                     </td>
-                    <td className=" border border-black px-3">
+                    <td className=" border border-black px-3 font-bold">
                       {Math.round(
                         jobCard.partsTotalPostTax + jobCard.labourTotalPostTax
                       )}

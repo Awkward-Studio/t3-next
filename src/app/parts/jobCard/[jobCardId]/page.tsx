@@ -15,10 +15,11 @@ import JobDetailsCard from "@/components/JobDetailsCard";
 import { Button } from "@/components/ui/button";
 import { objToStringArr, stringToObj } from "@/lib/helper";
 import { toast } from "sonner";
-import { JobCard, Car, Part, CurrentPart } from "@/lib/definitions";
+import { JobCard, Car, Part, CurrentPart, UserType } from "@/lib/definitions";
 import { currentPartsColumns } from "@/lib/column-definitions";
 import { CurrentPartsDataTable } from "@/components/data-tables/current-parts-data-table";
 import JobCardsPageSkeleton from "@/components/skeletons/JobCardPageSkeleton";
+import { getCookie } from "cookies-next";
 
 // Define the structure for the Car object
 
@@ -30,7 +31,16 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
 
   const [isEdited, setIsEdited] = useState(false);
 
+  const [user, setUser] = useState<UserType>();
+
   useEffect(() => {
+    const getUser = () => {
+      const token = getCookie("user");
+
+      const parsedToken = JSON.parse(String(token));
+      setUser((prev) => parsedToken);
+      console.log(parsedToken);
+    };
     const getJobCardDetails = async () => {
       const jobCardObj = await getJobCardById(params.jobCardId);
       console.log("This is the Job Card - ", jobCardObj);
@@ -52,6 +62,8 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
       console.log("THESE ARE THE PARTS - ", partsObj);
       setParts((prev) => partsObj.documents);
     };
+
+    getUser();
 
     getParts();
 
@@ -85,7 +97,7 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
 
   return (
     <div className="flex flex-col w-[90%] mt-5 space-y-8">
-      {!(parts && jobCard && car) ? (
+      {!(parts && jobCard && car && user) ? (
         <JobCardsPageSkeleton />
       ) : (
         <>
@@ -152,6 +164,7 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
               parts={parts}
               setCurrentParts={setCurrentParts}
               setIsEdited={setIsEdited}
+              user={user}
             />
           </div>
         </>

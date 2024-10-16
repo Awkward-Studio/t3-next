@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Shield } from "lucide-react";
 import {
   getAllLabour,
   getAllParts,
   getJobCardById,
   getTempCarById,
   updateJobCardById,
+  updateJobCardInsuranceDetails,
 } from "@/lib/appwrite";
 import { CarFront, User } from "lucide-react";
 import DetailsCard from "@/components/DetailsCard";
@@ -18,6 +19,7 @@ import {
   amtHelperWithoutTax,
   calcAllAmts,
   objToStringArr,
+  policyProviders,
   stringToObj,
 } from "@/lib/helper";
 import { toast } from "sonner";
@@ -28,6 +30,7 @@ import {
   CurrentPart,
   Labour,
   CurrentLabour,
+  UserType,
 } from "@/lib/definitions";
 import {
   currentPartsColumns,
@@ -36,6 +39,19 @@ import {
 import { CurrentPartsDataTable } from "@/components/data-tables/current-parts-data-table";
 import JobCardsPageSkeleton from "@/components/skeletons/JobCardPageSkeleton";
 import { CurrentLabourDataTable } from "@/components/data-tables/current-labour-data-table";
+import { getCookie } from "cookies-next";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { SearchSelect } from "@/components/SearchSelect";
 
 // Define the structure for the Car object
 
@@ -47,11 +63,16 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
   const [currentParts, setCurrentParts] = useState<CurrentPart[]>([]);
   const [currentLabour, setCurrentLabour] = useState<CurrentLabour[]>([]);
   const [currentJobCardStatus, setCurrentJobCardStatus] = useState<number>();
+  const [user, setUser] = useState<UserType>();
+
+  const [policyProvider, setPolicyProvider] = useState<string>();
+  const [policyNumber, setPolicyNumber] = useState<string>();
+  const [isInsuranceDetails, setIsInsuranceDetails] = useState(false);
 
   const [isEdited, setIsEdited] = useState(false);
 
   useEffect(() => {
-    console.log("THERE WAS AN EDIT");
+    // console.log("THERE WAS AN EDIT");
 
     const updateJobCardStatus = async () => {
       if (jobCard?.jobCardStatus)
@@ -59,9 +80,9 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
           params.jobCardId,
           jobCard?.parts,
           jobCard?.labour,
-          1
+          2
         );
-      setCurrentJobCardStatus(1);
+      setCurrentJobCardStatus(2);
     };
 
     updateJobCardStatus();
@@ -69,18 +90,41 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
   }, [isEdited]);
 
   useEffect(() => {
+    console.log("THERE WAS A CHANGE - ", currentParts);
+  }, [currentParts]);
+
+  useEffect(() => {
+    const getUser = () => {
+      const token = getCookie("user");
+
+      const parsedToken = JSON.parse(String(token));
+      setUser((prev) => parsedToken);
+      console.log(parsedToken);
+    };
+
     const getJobCardDetails = async () => {
       const jobCardObj = await getJobCardById(params.jobCardId);
-      console.log("This is the Job Card - ", jobCardObj);
+      // console.log("This is the Job Card - ", jobCardObj);
 
       const prevParts = stringToObj(jobCardObj.parts);
+      console.log("Current Parts - ", prevParts);
       setCurrentParts(prevParts);
 
       const prevLabour = stringToObj(jobCardObj.labour);
       setCurrentLabour(prevLabour);
 
       const carObj = await getTempCarById(jobCardObj.carId);
-      console.log("This is the car details - ", carObj);
+      // console.log("This is the car details - ", carObj);
+
+      if (jobCardObj.insuranceDetails) {
+        setIsInsuranceDetails(true);
+        const details = JSON.parse(jobCardObj.insuranceDetails);
+        setPolicyProvider(details.policyProvider);
+        setPolicyNumber(details.policyNumber);
+        console.log("DETAILS", details);
+      } else {
+        setIsInsuranceDetails(false);
+      }
 
       setJobCard((prev) => jobCardObj);
       setCurrentJobCardStatus(jobCardObj.jobCardStatus);
@@ -89,15 +133,17 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
 
     const getParts = async () => {
       const partsObj = await getAllParts();
-      console.log("THESE ARE THE PARTS - ", partsObj);
+      // console.log("THESE ARE THE PARTS - ", partsObj);
       setParts((prev) => partsObj.documents);
     };
 
     const getLabour = async () => {
       const labourObj = await getAllLabour();
-      console.log("THESE ARE THE Labours - ", labourObj);
+      // console.log("THESE ARE THE Labours - ", labourObj);
       setLabours((prev) => labourObj.documents);
     };
+
+    getUser();
 
     getParts();
 
@@ -106,9 +152,15 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
     getJobCardDetails();
   }, []);
 
-  const saveCurrentPartsAndLbour = async () => {
+  const saveCurrentPartsAndLbour = async (statusUpdate?: number) => {
     console.log("Current Parts - ", currentParts);
     console.log("CURRENT LABOUR - ", currentLabour);
+
+    let status = 2;
+
+    if (statusUpdate) {
+      status = statusUpdate;
+    }
 
     const parts = objToStringArr(currentParts);
     const labour = objToStringArr(currentLabour);
@@ -121,7 +173,7 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
       params.jobCardId,
       parts,
       labour,
-      2,
+      status,
       amounts.partsAmtPreTax,
       amounts.partsAmtPostTax,
       amounts.labourAmtPreTax,
@@ -139,35 +191,17 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
   };
 
   const generateQuote = async () => {
-    const isDone = await updateJobCardById(
-      params.jobCardId,
-      jobCard?.parts,
-      jobCard?.labour,
-      3
-    );
-
+    await saveCurrentPartsAndLbour(3);
     setCurrentJobCardStatus(3);
 
-    if (isDone) {
-      // console.log("IT IS DONE");
-      toast("Quote Generated \u2705");
-    }
+    toast("Quote Generated \u2705");
   };
 
   const generateProFormaInvoice = async () => {
-    const isDone = await updateJobCardById(
-      params.jobCardId,
-      jobCard?.parts,
-      jobCard?.labour,
-      4
-    );
-
+    await saveCurrentPartsAndLbour(4);
     setCurrentJobCardStatus(4);
 
-    if (isDone) {
-      // console.log("IT IS DONE");
-      toast("Pro-Forma Invoice Generated \u2705");
-    }
+    toast("Pro-Forma Invoice Generated \u2705");
   };
 
   const generateTaxInvoice = async () => {
@@ -186,13 +220,30 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
     }
   };
 
-  useEffect(() => {
-    console.log("THERE WAS A CHANGE - ", currentParts, currentLabour);
-  }, [currentParts, currentLabour]);
+  const saveInsuranceDetails = async () => {
+    const insuranceDetails = JSON.stringify({
+      policyProvider: policyProvider,
+      policyNumber: policyNumber,
+    });
+
+    console.log(insuranceDetails);
+
+    const isDone = await updateJobCardInsuranceDetails(
+      params.jobCardId,
+      insuranceDetails
+    );
+
+    console.log(isDone);
+    if (isDone) {
+      // console.log("IT IS DONE");
+      toast("Insurance Details have been Updated \u2705");
+      setIsInsuranceDetails(true);
+    }
+  };
 
   return (
     <div className="flex flex-col w-[90%] mt-5 space-y-8">
-      {!(parts && jobCard && car) ? (
+      {!(parts && jobCard && car && user) ? (
         <JobCardsPageSkeleton />
       ) : (
         <>
@@ -210,7 +261,7 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
                 variant="outline"
                 className="px-8 py-2 bg-red-500 text-white hover:bg-red-400 hover:text-white"
                 size="lg"
-                onClick={saveCurrentPartsAndLbour}
+                onClick={() => saveCurrentPartsAndLbour()}
               >
                 Save
               </Button>
@@ -230,7 +281,7 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
                 variant="outline"
                 className="px-8 py-2 bg-red-500 text-white hover:bg-red-400 hover:text-white"
                 size="lg"
-                // onClick={generateQuote}
+                onClick={generateProFormaInvoice}
               >
                 Generate Pro-Forma Invoice
               </Button>
@@ -274,16 +325,82 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
                 data={{ makeModel: `${car?.carMake} ${car?.carModel}` }}
               />
             </div>
-            <div>
+            <div className="flex flex-col space-y-8">
               <JobDetailsCard
                 data={{ jobCard, car }}
                 diagnosis={jobCard?.diagnosis}
               />
+              {isInsuranceDetails && (
+                <DetailsCard
+                  title="Insurance Details"
+                  icon={<Shield />}
+                  dataHead={policyProvider}
+                  data={{ policyNumber: policyNumber }}
+                />
+              )}
+              <div>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="border bordre-red-500 text-red-500"
+                    >
+                      {isInsuranceDetails
+                        ? "Edit Insurance Details"
+                        : "Add Insurance Details"}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Insurance Details</DialogTitle>
+                      <DialogDescription>
+                        Enter the details of your vehicle insurance
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="policyProvider" className="text-right">
+                          Policy Provider
+                        </Label>
+                        <div className="col-span-3">
+                          <SearchSelect
+                            id="policyProvider"
+                            data={policyProviders}
+                            type="Policy Providers"
+                            setDataValue={setPolicyProvider}
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="policyNumber" className="text-right">
+                          Policy Number
+                        </Label>
+                        <Input
+                          id="policyNumber"
+                          className="col-span-3"
+                          onChange={(event) =>
+                            setPolicyNumber(event.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        type="submit"
+                        className="bg-red-500"
+                        onClick={saveInsuranceDetails}
+                      >
+                        Save
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
           </div>
           <div className="font-semibold text-3xl">Invoice Details</div>
 
-          <div className="flex flex-row space-x-5 pb-10">
+          <div className="flex flex-col space-y-8">
             <CurrentPartsDataTable
               columns={currentPartsColumns}
               data={currentParts}
@@ -291,6 +408,9 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
               parts={parts}
               setCurrentParts={setCurrentParts}
               setIsEdited={setIsEdited}
+              user={user}
+              currentJobCardStatus={currentJobCardStatus}
+              isInsuranceDetails={isInsuranceDetails}
             />
             <CurrentLabourDataTable
               columns={currentLabourColumns}

@@ -49,7 +49,7 @@ export default function PartsSearch({
       mrp: item.mrp,
       gst: item.gst,
       quantity: 1,
-      amount: taxAmtHelper(item.mrp, 1, item.gst, "value"),
+      amount: taxAmtHelper(item.mrp, 1, item.gst, 0, "value"),
     };
 
     if (currentParts) {
@@ -66,6 +66,7 @@ export default function PartsSearch({
           currentPartObj.mrp,
           currentPartObj.quantity,
           currentPartObj.gst,
+          0,
           "value"
         );
 

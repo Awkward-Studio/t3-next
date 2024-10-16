@@ -378,7 +378,8 @@ export const updateJobCardById = async (
   partsTotalPreTax?: number,
   partsTotalPostTax?: number,
   labourTotalPreTax?: number,
-  labourTotalPostTax?: number
+  labourTotalPostTax?: number,
+  insuranceDetails?: string
 ) => {
   if (parts) {
   }
@@ -388,6 +389,7 @@ export const updateJobCardById = async (
       config.jobCardsCollectionId, // collectionId
       id, // documentId
       {
+        // insuranceDetails,
         parts,
         labour,
         jobCardStatus,
@@ -395,6 +397,7 @@ export const updateJobCardById = async (
         partsTotalPostTax,
         labourTotalPreTax,
         labourTotalPostTax,
+        insuranceDetails,
       } // data (optional)
     );
     return true;
@@ -453,4 +456,26 @@ export const uploadCarImage = async (file: any) => {
       reject(null);
     }
   });
+};
+
+export const updateJobCardInsuranceDetails = async (
+  id: string,
+  insuranceDetails?: string
+) => {
+  try {
+    await databases.updateDocument(
+      config.databaseId,
+      config.jobCardsCollectionId, // collectionId
+      id, // documentId
+      {
+        // insuranceDetails,
+
+        insuranceDetails,
+      } // data (optional)
+    );
+    return true;
+  } catch (error: any) {
+    console.log(error.message);
+    return null;
+  }
 };

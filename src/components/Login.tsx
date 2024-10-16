@@ -98,6 +98,11 @@ function Login({}: Props) {
           handleButtonPress={login}
           isLoading={isSigningIn}
         />
+        {/* <PrimaryButton
+          title={"Sign In"}
+          handleButtonPress={logout}
+          isLoading={isSigningIn}
+        /> */}
       </div>
     </div>
   );

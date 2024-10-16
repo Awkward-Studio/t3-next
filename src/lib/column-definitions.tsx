@@ -204,6 +204,12 @@ export const currentPartsColumns: ColumnDef<CurrentPart>[] = [
   {
     accessorKey: "quantity",
   },
+  {
+    accessorKey: "discount",
+  },
+  {
+    accessorKey: "insurance",
+  },
 ];
 
 export const currentLabourColumns: ColumnDef<CurrentLabour>[] = [

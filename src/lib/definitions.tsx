@@ -46,6 +46,7 @@ export interface JobCard {
   labourTotalPreTax: number;
   labourTotalPostTax: number;
   jobCardNumber: number;
+  insuranceDetails: string;
   $id: string;
   $createdAt: string;
   $updatedAt: string;
@@ -60,8 +61,13 @@ export type CurrentPart = {
   partNumber: string;
   mrp: number;
   gst: number;
+  hsn: string;
   quantity: number;
   amount: number;
+  discount?: number;
+  insurance?: number;
+  insuranceAmt?: number;
+  customerAmt?: number;
 };
 
 export interface Labour {
@@ -110,4 +116,34 @@ export type ImageObj = {
   imageType: string;
   thumbnailURL: string;
   imageURL: string;
+};
+
+export type Target = {
+  $id: string;
+  $createdAt: string;
+  $updatedAt: string;
+  name: string;
+  userId: string;
+  providerId: string | null;
+  providerType: string;
+  identifier: string;
+};
+
+export type UserType = {
+  $id: string;
+  $createdAt: string;
+  $updatedAt: string;
+  name: string;
+  registration: string;
+  status: boolean;
+  labels: string[];
+  passwordUpdate: string;
+  email: string;
+  phone: string;
+  emailVerification: boolean;
+  phoneVerification: boolean;
+  mfa: boolean;
+  prefs: Record<string, unknown>;
+  targets: Target[];
+  accessedAt: string;
 };
