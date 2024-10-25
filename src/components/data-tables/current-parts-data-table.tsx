@@ -105,11 +105,16 @@ export function CurrentPartsDataTable<TData, TValue>({
     if (toUpdateQty) {
       toUpdateQty.quantity = prevQty + toUpdate;
 
+      const validMrp = toUpdateQty.mrp ?? 0;
+      const validGst = toUpdateQty.gst ?? 0;
+      const validDiscount = toUpdateQty.discount ?? 0;
+      const validQuantity = toUpdateQty.quantity ?? 1;
+
       let newTaxAmt = taxAmtHelper(
-        toUpdateQty.mrp,
-        toUpdateQty.quantity,
-        toUpdateQty.gst,
-        toUpdateQty.discount,
+        validMrp,
+        validQuantity,
+        validGst,
+        validDiscount,
         "value"
       );
 

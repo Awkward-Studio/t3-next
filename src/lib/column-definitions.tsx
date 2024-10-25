@@ -6,7 +6,7 @@ import { ArrowUpDown, Divide } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { getButtonText, jobCardStatusKey } from "../lib/helper";
+import { convertStringsToArray, getButtonText, jobCardStatusKey } from "../lib/helper";
 
 import {
   JobCard,
@@ -292,9 +292,22 @@ export const tempCarsColumns: ColumnDef<TempCar>[] = [
       );
     },
   },
+  // {
+  //   accessorKey: "purposeOfVisit",
+  //   header: "POV",
+  // },
   {
-    accessorKey: "purposeOfVisit",
+    accessorKey: "purposeOfVisitAndAdvisors",
     header: "POV",
+    cell: ({ row }) => {
+      const povs = convertStringsToArray(row.original.purposeOfVisitAndAdvisors)
+      return povs.map((pov: any) => pov.description).join(", ") || "No POV";
+    },
+    filterFn: (row, columnId, filterValue) => {
+      const povs = convertStringsToArray(row.getValue(columnId));
+      if (!Array.isArray(povs) || povs.length === 0) return false;
+      return povs.some((pov: any) => pov.description === filterValue);
+    },
   },
   {
     id: "actions",
@@ -309,6 +322,14 @@ export const tempCarsColumns: ColumnDef<TempCar>[] = [
 
       const userAccess = parsedToken.labels[0];
 
+      const advisorEmail = parsedToken.email;
+
+      const purposeOfVisitAndAdvisors = convertStringsToArray(tempCar.purposeOfVisitAndAdvisors);
+
+      const advisorInfo = purposeOfVisitAndAdvisors.find(
+        (pov: any) => pov.advisorEmail === advisorEmail
+      );
+
       let currentCounter = getCookie("currentCounter");
 
       switch (userAccess) {
@@ -319,17 +340,17 @@ export const tempCarsColumns: ColumnDef<TempCar>[] = [
             <div className="flex justify-center items-center">
               <Link
                 href={`${
-                  tempCar.carStatus == 0
+                  advisorInfo.open === false
                     ? `${pathname}/createJobCard/${tempCar.$id}?currentCounter=${currentCounter}`
                     : `${pathname}/viewJobCard/${tempCar.jobCardId}`
                 }`}
                 className={`flex justify-center items-center rounded-md w-fit px-3 py-2 border border-gray-200 ${
-                  tempCar.carStatus == 0
+                  advisorInfo.open === false
                     ? "bg-red-500 text-white hover:bg-red-400"
                     : "bg-white text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {tempCar.carStatus == 0 ? "Create" : "View"}
+                {advisorInfo.open === false ? "Create" : "View"}
               </Link>
             </div>
           );

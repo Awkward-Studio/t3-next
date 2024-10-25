@@ -6,7 +6,7 @@ import logo from "../../../../../../public/assets/Logomark.png";
 import { usePathname } from "next/navigation";
 import { getJobCardById, getTempCarById } from "@/lib/appwrite";
 import { Car, CurrentLabour, CurrentPart, JobCard } from "@/lib/definitions";
-import { roundToTwoDecimals, stringToObj } from "@/lib/helper";
+import { convertStringsToArray, roundToTwoDecimals, stringToObj } from "@/lib/helper";
 
 export default function page() {
   const pathname = usePathname();
@@ -18,6 +18,8 @@ export default function page() {
   const [labour, setLabour] = useState<CurrentLabour[] | null>(null);
 
   const currentDate = new Date();
+
+  const [purposeOfVisitAndAdvisors, setPurposeOfVisitAndAdvisors]: any[] = useState();
 
   useEffect(() => {
     const getJobCardDetails = async () => {
@@ -36,6 +38,8 @@ export default function page() {
 
       setJobCard((prev) => jobCardObj);
       setCar((prev) => carObj);
+      const pov = convertStringsToArray(car?.purposeOfVisitAndAdvisors)
+      setPurposeOfVisitAndAdvisors(pov);
     };
 
     getJobCardDetails();
@@ -173,6 +177,11 @@ export default function page() {
                     <td className=" border border-black">
                       {car?.purposeOfVisit}
                     </td>
+                    {purposeOfVisitAndAdvisors?.map((visit: any, index: any) => (
+                        <td className=" border border-black">
+                          {visit.description}
+                        </td>
+                    ))}
                   </tr>
                 </tbody>
               </table>

@@ -24,15 +24,19 @@ import { MoveRight } from "lucide-react";
 import {
   carMakeModels,
   carMakes,
+  convertStringsToArray,
+  convertToStrings,
   getAllCarMakes,
   purposeOfVisits,
+  serviceAdvisors
 } from "@/lib/helper";
 import { useRouter } from "next/navigation";
 import { SearchSelect } from "./SearchSelect";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Props = {};
 
-export default function AddCarCards({}: Props) {
+export default function AddCarCards({ }: Props) {
   const router = useRouter();
 
   const [currentState, setCurrentState] = useState(0);
@@ -40,7 +44,21 @@ export default function AddCarCards({}: Props) {
   const [carNumber, setCarNumber] = useState("");
   const [carMake, setCarMake] = useState("");
   const [carModel, setCarModel] = useState("");
-  const [purposeOfVisit, setPurposeOfVisit] = useState("");
+  const purposeOfVisit = "hey";
+
+  // Storing purposeOfVisitCode (number) and advisorEmail (string)
+  const [purposeOfVisitSelections, setPurposeOfVisitSelections] = useState<
+    { purposeOfVisitCode: number; description: string | undefined; advisorEmail: string, open: boolean }[]
+  >([]);
+
+  // Storing purposeOfVisitCode (number) and advisors (array of strings)
+  const [currentServiceAdvisors, setCurrentServiceAdvisors] = useState<
+  { purposeOfVisitCode: number; advisors: { name: string; email: string }[] }[]
+>([]);
+
+  // For controlling visibility of dropdowns for each purposeOfVisitCode
+  const [dropdownVisible, setDropdownVisible] = useState<{ [key: number]: boolean }>({});
+
   const [isButtonLoading, setIsButtonLoading] = useState(false);
 
   const [isCorrectCarNumber, setIsCorrectCarNumber] = useState(false);
@@ -58,6 +76,60 @@ export default function AddCarCards({}: Props) {
     setIsCorrectCarNumber((prev) => indianCarNumberRegex.test(inputText));
   }
 
+  // Handling checkbox change for Purpose of Visit
+  const handleCheckboxChange = (code: number) => {
+    setDropdownVisible((prev) => ({
+      ...prev,
+      [code]: !prev[code],  // Toggle the dropdown for the selected purposeOfVisitCode
+    }));
+
+    // Update purposeOfVisitSelections state
+    setPurposeOfVisitSelections((prev) => {
+      const alreadyExists = prev.find((item) => item.purposeOfVisitCode === code);
+      if (alreadyExists) {
+        // Remove the purposeOfVisit if it's unchecked
+        return prev.filter((item) => item.purposeOfVisitCode !== code);
+      } else {
+        // Add the purposeOfVisitCode and initialize its service advisor
+        const povDescription = purposeOfVisits.find((item) => item.code === code)?.description;
+        return [...prev, { purposeOfVisitCode: code, description: povDescription, advisorEmail: "", open: false}];
+      }
+    });
+
+    // Update the currentServiceAdvisors state
+    setCurrentServiceAdvisors((prev) => {
+      const selectedAdvisors = serviceAdvisors.find(
+        (item) => item.purposeOfVisitCode === code
+      );
+
+      const advisorExists = prev.some((item) => item.purposeOfVisitCode === code);
+
+      if (advisorExists) {
+        // Replace existing advisors for the given purposeOfVisitCode
+        return prev.map((item) =>
+          item.purposeOfVisitCode === code
+            ? { ...item, advisors: selectedAdvisors?.advisors || [] }
+            : item
+        );
+      } else {
+        // Add new advisors for the given purposeOfVisitCode
+        return [
+          ...prev,
+          { purposeOfVisitCode: code, advisors: selectedAdvisors?.advisors || [] },
+        ];
+      }
+    });
+  };
+
+  // Handle advisor selection change for a given purposeOfVisitCode
+  const handleServiceAdvisorChange = (code: number, advisorEmail: string) => {
+    setPurposeOfVisitSelections((prev) =>
+      prev.map((item) =>
+        item.purposeOfVisitCode === code ? { ...item, advisorEmail: advisorEmail } : item
+      )
+    );
+  };
+
   const handleContinueCarNumber = async () => {
     //
     setIsButtonLoading((prev) => true);
@@ -69,8 +141,7 @@ export default function AddCarCards({}: Props) {
     console.log("CAR TEMP - ", searchedTempCar);
 
     if (
-      searchedTempCar.total > 0 &&
-      searchedTempCar.documents[0].carStatus == 0
+      searchedTempCar.total > 0
     ) {
       toast("Vehicle Already in the System");
     } else {
@@ -81,6 +152,9 @@ export default function AddCarCards({}: Props) {
       } else {
         console.log("THIS IS AN OLD CAR", prevHistory.documents[0]["$id"]);
         setIsNewCar((prev) => prevHistory.documents[0]["$id"]);
+        console.log(prevHistory.documents[0].carMake)
+        setCarMake(prevHistory.documents[0].carMake);
+        setCarModel(prevHistory.documents[0].carModel);
 
         // let foundMake = carMakes.find(
         //   (make) => make.description == prevHistory.documents[0].carMake
@@ -95,10 +169,20 @@ export default function AddCarCards({}: Props) {
     setIsButtonLoading((prev) => false);
   };
 
+  const handleLog = () => {
+    console.log("ADVISORS", currentServiceAdvisors);
+    console.log("po", purposeOfVisitSelections);
+    console.log("po", convertToStrings(purposeOfVisitSelections));
+    console.log("po", convertStringsToArray(convertToStrings(purposeOfVisitSelections)));
+
+  }
+
   const handleContinueEnterVehicle = async () => {
     setIsButtonLoading((prev) => true);
 
-    if (carMake != "" && carModel != "" && purposeOfVisit != "") {
+    const purposeOfVisitAndAdvisors = convertToStrings(purposeOfVisitSelections);
+
+    if (carMake != "" && carModel != "" && purposeOfVisitSelections.length > 0) {
       if (isNewCar == null) {
         console.log("THIS IS A NEW CAR");
         try {
@@ -106,7 +190,8 @@ export default function AddCarCards({}: Props) {
             carNumber,
             carMake,
             carModel,
-            purposeOfVisit
+            purposeOfVisit,
+            purposeOfVisitAndAdvisors
           );
           console.log(newCar);
 
@@ -115,6 +200,7 @@ export default function AddCarCards({}: Props) {
             carMake,
             carModel,
             purposeOfVisit,
+            purposeOfVisitAndAdvisors,
             newCar.$id
           );
 
@@ -133,7 +219,8 @@ export default function AddCarCards({}: Props) {
             carMake,
             carModel,
             purposeOfVisit,
-            isNewCar!
+            purposeOfVisitAndAdvisors,
+            isNewCar!,
           );
           toast("New Vehicle Entered \u2705");
           setTimeout(() => {
@@ -198,6 +285,7 @@ export default function AddCarCards({}: Props) {
               data={getAllCarMakes()}
               type="Car Makes"
               setDataValue={setCarMake}
+              value={carMake}
             />
           </div>
           <div>
@@ -206,25 +294,50 @@ export default function AddCarCards({}: Props) {
               type="Car Models"
               setDataValue={setCarModel}
               disabled={handleModelDisable}
+              value={carModel}
             />
           </div>
           <div>
-            <Select
-              onValueChange={(value) => {
-                setPurposeOfVisit(value);
-              }}
-            >
-              <SelectTrigger className="w-full p-2 border border-gray-200 rounded-lg">
-                <SelectValue placeholder="Select Purpose of Visit" />
-              </SelectTrigger>
-              <SelectContent className="w-full">
-                {purposeOfVisits.map((pov, index) => (
-                  <SelectItem key={index} value={pov.description}>
-                    {pov.description}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div>
+              <label className="block mb-2 font-medium">Purpose of Visit</label>
+              {purposeOfVisits.map((pov, index) => (
+                <div key={index} className="mb-4">
+                  {/* Aligning checkbox and label */}
+                  <div className="flex items-center mb-2">
+                    <Checkbox
+                      id={`checkbox-${pov.code}`}
+                      className="mr-2 cursor-pointer"
+                      checked={dropdownVisible[pov.code] || false}
+                      onCheckedChange={() => handleCheckboxChange(pov.code)} // Use code for checkbox change
+                    />
+                    <label htmlFor={`checkbox-${pov.code}`} className="cursor-pointer">
+                      {pov.description} {/* Keep the description for user clarity */}
+                    </label>
+                  </div>
+
+                  {/* Only show the dropdown if the checkbox is selected */}
+                  {dropdownVisible[pov.code] && (
+                    <Select
+                      onValueChange={(advisorEmail) => handleServiceAdvisorChange(pov.code, advisorEmail)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select Service Advisor" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {serviceAdvisors
+                          .find((item) => item.purposeOfVisitCode === pov.code)
+                          ?.advisors.map((advisor, index) => (
+                            <SelectItem key={index} value={advisor.email}>
+                              {advisor.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+              ))}
+
+            </div>
           </div>
           <Button
             color="#EF4444"

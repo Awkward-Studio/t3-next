@@ -9,6 +9,7 @@ import {
   Font,
 } from "@react-pdf/renderer";
 import { CurrentLabour, CurrentPart } from "@/lib/definitions";
+import { convertStringsToArray } from "@/lib/helper";
 
 Font.register({
   family: "Open Sans",
@@ -162,7 +163,9 @@ export const InvoicePDF = ({
   logo,
   car,
   currentDate,
+  purposeOfVisitAndAdvisors
 }: any) => (
+  
   <Document>
     {jobCard && car && parts && labour && (
       <Page size="A4" style={styles.page}>
@@ -300,6 +303,9 @@ export const InvoicePDF = ({
                 </Text>
               </View>
               <View style={styles.tableCell}>
+                {purposeOfVisitAndAdvisors.map((visit: any, index: any) => (
+                  <Text>{visit.description}</Text>
+                ))}
                 <Text style={styles.tableData}>{car.purposeOfVisit}</Text>
               </View>
             </View>

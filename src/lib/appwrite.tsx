@@ -1,5 +1,7 @@
 import { Client, Account, Databases, Query, ID, Storage } from "appwrite";
+import { getCookie } from "cookies-next";
 import ImageKit from "imagekit";
+import { convertStringsToArray, convertToStrings, purposeOfVisits } from "./helper";
 
 export const config = {
   endpoint: "https://cloud.appwrite.io/v1",
@@ -110,6 +112,7 @@ export const createCar = async (
   carMake: String,
   carModel: String,
   purposeOfVisit: String,
+  purposeOfVisitAndAdvisors: String[],
   location?: String
 ) => {
   try {
@@ -117,7 +120,7 @@ export const createCar = async (
       config.databaseId,
       config.carsCollectionId,
       ID.unique(),
-      { carNumber, carMake, carModel, purposeOfVisit, location }
+      { carNumber, carMake, carModel, purposeOfVisit, location, purposeOfVisitAndAdvisors }
     );
     // console.log("The created Car is - ", result);
     return carsResult;
@@ -132,8 +135,9 @@ export const createTempCar = async (
   carMake: String,
   carModel: String,
   purposeOfVisit: String,
+  purposeOfVisitAndAdvisors: String[],
   carsTableId: string,
-  location?: String
+  location?: String,
 ) => {
   try {
     let carStatus = 0;
@@ -149,6 +153,7 @@ export const createTempCar = async (
         purposeOfVisit,
         carStatus,
         carsTableId,
+        purposeOfVisitAndAdvisors,
       }
     );
     // console.log("The created Car is - ", result);
@@ -194,11 +199,31 @@ export const createJobCard = async (
       }
     );
 
+    // To update the tempcar status
+    const tempCar = await getTempCarById(carId);
+    if (!tempCar) {
+      console.log("Car not found");
+      return null;
+    }
+
+    const token = getCookie("user");
+    const parsedToken = JSON.parse(String(token));
+    const advisorEmail = parsedToken.email;
+
+    // Check if the user email matches an advisor and update `open` field if it exists
+    const purposeOfVisitAndAdvisors = convertStringsToArray(tempCar.purposeOfVisitAndAdvisors);
+    const updatedPov = purposeOfVisitAndAdvisors.map((pov: any) => {
+      if (pov.advisorEmail === advisorEmail && pov.open === false) {
+        return { ...pov, open: true }; // Set `open` to true if it matches the advisor email
+      }
+      return pov;
+    });
+    const updatedPurposeOfVisitAndAdvisors = convertToStrings(updatedPov);
     await databases.updateDocument(
       config.databaseId,
       config.tempCarsCollectionId, // collectionId
       carId, // documentId
-      { carStatus: 1, jobCardId: result["$id"] } // data (optional)
+      { carStatus: 1, jobCardId: result["$id"], purposeOfVisitAndAdvisors: updatedPurposeOfVisitAndAdvisors } // data (optional)
     );
 
     const carHistory = await databases.getDocument(

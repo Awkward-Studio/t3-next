@@ -43,9 +43,16 @@ const convertedData = [
   },
 ];
 
-export function SearchSelect({ data, type, setDataValue, disabled }: any) {
+export function SearchSelect({ data, type, setDataValue, disabled, value }: any) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
+  //const [value, setValue] = React.useState("");
+
+  const [internalValue, setInternalValue] = React.useState(value || "");  // Use prop value as initial state
+
+  // Update the internal value when the external value changes
+  React.useEffect(() => {
+    setInternalValue(value);
+  }, [value]);
 
   let convertedData: any = [];
 
@@ -81,7 +88,9 @@ export function SearchSelect({ data, type, setDataValue, disabled }: any) {
                   key={dataItem.value}
                   value={dataItem.value}
                   onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue);
+                    const newValue = currentValue === internalValue ? "" : currentValue;
+                    setInternalValue(newValue);
+                    //setValue(currentValue === value ? "" : currentValue);
                     setDataValue(currentValue);
                     setOpen(false);
                   }}
