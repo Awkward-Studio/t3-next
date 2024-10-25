@@ -37,6 +37,8 @@ export default function Sidebar({ home }: any) {
 
   const router = useRouter();
 
+  console.log("THIS IS THE HOME - ", home);
+
   const logout = async () => {
     setIsLoggingOut((prev) => true);
     await logoutUser();

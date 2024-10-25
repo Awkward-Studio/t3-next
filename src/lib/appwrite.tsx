@@ -12,6 +12,7 @@ export const config = {
   partsCollectionId: "66f6ce58000446f6aeaf",
   labourCollectionId: "66fa5dc6003941f79697",
   carImagesBucketId: "67053962002be8598a04",
+  invoicesCollectionId: "6710ba53003b4b25a23d",
 };
 
 export let client: any;
@@ -27,7 +28,7 @@ account = new Account(client);
 databases = new Databases(client);
 storage = new Storage(client);
 
-const imagekit = new ImageKit({
+export const imagekit = new ImageKit({
   publicKey: "public_YxeQGi/zYRicR5GdhQu7UwOMAYg=",
   privateKey: "private_pPkQ38mNRgbbpt9JElST4HPGQfw=",
   urlEndpoint: "https://ik.imagekit.io/ztq7tvia1",
@@ -332,6 +333,8 @@ export const getJobCardById = async (id: string) => {
       config.jobCardsCollectionId,
       id
     );
+
+    console.log("FETCHED CAR + ", result);
     return result;
   } catch (error: any) {
     console.log(error.message);
@@ -370,15 +373,31 @@ export const getAllParts = async () => {
   }
 };
 
+export const getAllCars = async () => {
+  // console.log("Hitting Backend");
+
+  try {
+    let result = await databases.listDocuments(
+      config.databaseId,
+      config.carsCollectionId,
+      []
+    );
+    return result;
+  } catch (error: any) {
+    console.log(error.message);
+    return null;
+  }
+};
+
 export const updateJobCardById = async (
   id: string,
   parts?: string[],
   labour?: string[],
   jobCardStatus?: number,
-  partsTotalPreTax?: number,
-  partsTotalPostTax?: number,
-  labourTotalPreTax?: number,
-  labourTotalPostTax?: number,
+  subTotal?: number,
+  discountAmt?: number,
+  amount?: number,
+  taxes?: string[],
   insuranceDetails?: string
 ) => {
   if (parts) {
@@ -393,11 +412,11 @@ export const updateJobCardById = async (
         parts,
         labour,
         jobCardStatus,
-        partsTotalPreTax,
-        partsTotalPostTax,
-        labourTotalPreTax,
-        labourTotalPostTax,
+        subTotal,
+        discountAmt,
+        amount,
         insuranceDetails,
+        taxes,
       } // data (optional)
     );
     return true;
@@ -474,6 +493,60 @@ export const updateJobCardInsuranceDetails = async (
       } // data (optional)
     );
     return true;
+  } catch (error: any) {
+    console.log(error.message);
+    return null;
+  }
+};
+
+export const createInvoice = async (
+  invoiceUrl: string,
+  jobCardId: string,
+  carNumber: string,
+  invoiceType: string,
+  invoiceNumber: number
+) => {
+  try {
+    let carsResult = await databases.createDocument(
+      config.databaseId,
+      config.invoicesCollectionId,
+      ID.unique(),
+      { invoiceUrl, jobCardId, carNumber, invoiceType, invoiceNumber }
+    );
+    // console.log("The created Car is - ", result);
+    return carsResult;
+  } catch (error: any) {
+    console.log(error.message);
+    return null;
+  }
+};
+
+export const getInvoicesByJobCardId = async (jobCardId: string) => {
+  try {
+    let result = await databases.listDocuments(
+      config.databaseId,
+      config.invoicesCollectionId,
+      [Query.equal("jobCardId", jobCardId), Query.orderDesc("$createdAt")]
+    );
+
+    console.log("FETCHED INVOICEs ", result);
+    return result;
+  } catch (error: any) {
+    console.log(error.message);
+    return null;
+  }
+};
+
+export const getAllInvoices = async () => {
+  // console.log("Hitting Backend");
+
+  try {
+    let result = await databases.listDocuments(
+      config.databaseId,
+      config.invoicesCollectionId,
+      [Query.orderDesc("$createdAt")]
+    );
+    return result;
   } catch (error: any) {
     console.log(error.message);
     return null;

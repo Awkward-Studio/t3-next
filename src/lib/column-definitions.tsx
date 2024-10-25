@@ -40,6 +40,10 @@ export const jobCardColumns: ColumnDef<JobCard>[] = [
     header: "Customer Name",
   },
   {
+    accessorKey: "jobCardNumber",
+    header: "Job Card No.",
+  },
+  {
     accessorKey: "$createdAt",
     header: ({ column }) => {
       return (
@@ -205,10 +209,13 @@ export const currentPartsColumns: ColumnDef<CurrentPart>[] = [
     accessorKey: "quantity",
   },
   {
-    accessorKey: "discount",
+    accessorKey: "discountPercentage",
   },
   {
-    accessorKey: "insurance",
+    accessorKey: "insurancePercentage",
+  },
+  {
+    accessorKey: "amount",
   },
 ];
 
@@ -220,6 +227,10 @@ export const currentLabourColumns: ColumnDef<CurrentLabour>[] = [
   {
     accessorKey: "labourCode",
     header: "Labour Code",
+  },
+  {
+    accessorKey: "hsn",
+    header: "HSN",
   },
   {
     accessorKey: "mrp",
@@ -239,6 +250,15 @@ export const currentLabourColumns: ColumnDef<CurrentLabour>[] = [
   },
   {
     accessorKey: "quantity",
+  },
+  {
+    accessorKey: "discountPercentage",
+  },
+  {
+    accessorKey: "insurancePercentage",
+  },
+  {
+    accessorKey: "amount",
   },
 ];
 
