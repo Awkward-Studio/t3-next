@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "./ui/input";
 import { CurrentLabour, CurrentPart, Labour, Part } from "@/lib/definitions";
-import { taxAmtHelper } from "@/lib/helper";
+import {
+  createTempLabourObj,
+  taxAmtHelper,
+  updateTempLabourObjQuantity,
+} from "@/lib/helper";
 
 export default function LabourSearch({
   items,
@@ -40,41 +44,19 @@ export default function LabourSearch({
     console.log("Clicked Part - ", item);
     console.log("CURRENT PARTS - ", currentLabours);
 
-    let currentLabourObj = {
-      $id: item.$id,
-      labourName: item.labourName,
-      labourCode: item.labourCode,
-      hsn: item.hsn,
-      category: item.category,
-      mrp: item.mrp,
-      gst: item.gst,
-      quantity: 1,
-      amount: taxAmtHelper(item.mrp, 1, item.gst, 0, "value"),
-    };
+    let currentLabourObj = createTempLabourObj(item);
 
-    if (currentLabours) {
-      console.log("THERE EXISTS CURRENT LABOURS");
+    if (currentLabours && currentLabourObj) {
       let findIndex = currentLabours?.findIndex(
-        (labour) => labour.$id == item.$id
+        (work) => work.labourCode == item.$id
       );
       // console.log(findIndex);
 
       if (findIndex != -1) {
-        console.log("Selected Item Does not Exist in Current Labours");
         let arrayFirstHalf = currentLabours.slice(0, findIndex);
         let arraySecondHalf = currentLabours.slice(findIndex + 1);
 
-        currentLabourObj.quantity = currentLabours[findIndex].quantity + 1;
-
-        let newTaxAmt = taxAmtHelper(
-          currentLabourObj.mrp,
-          currentLabourObj.quantity,
-          currentLabourObj.gst,
-          0,
-          "value"
-        );
-
-        currentLabourObj.amount = newTaxAmt;
+        currentLabourObj = updateTempLabourObjQuantity(currentLabourObj, 1);
 
         setCurrentLabour([
           ...arrayFirstHalf,

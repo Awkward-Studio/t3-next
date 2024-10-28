@@ -3,8 +3,10 @@
 import React, { useEffect, useState } from "react";
 import { ArrowLeft, Shield } from "lucide-react";
 import {
+  getAllInvoices,
   getAllLabour,
   getAllParts,
+  getInvoicesByJobCardId,
   getJobCardById,
   getTempCarById,
   updateJobCardById,
@@ -18,8 +20,11 @@ import { Button } from "@/components/ui/button";
 import {
   amtHelperWithoutTax,
   calcAllAmts,
+  createTaxObj,
+  invoiceTypes,
   objToStringArr,
   policyProviders,
+  purposeOfVisits,
   stringToObj,
 } from "@/lib/helper";
 import { toast } from "sonner";
@@ -31,6 +36,8 @@ import {
   Labour,
   CurrentLabour,
   UserType,
+  Invoice,
+  TaxObj,
 } from "@/lib/definitions";
 import {
   currentPartsColumns,
@@ -52,10 +59,22 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SearchSelect } from "@/components/SearchSelect";
+import { usePathname } from "next/navigation";
+import Image from "next/image";
+import loader from "../../../../../public/assets/t3-loader.gif";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Define the structure for the Car object
 
 export default function jobCard({ params }: { params: { jobCardId: any } }) {
+  const pathname = usePathname();
+
   const [jobCard, setJobCard] = useState<JobCard | null>(null); // Properly typed state
   const [car, setCar] = useState<Car | null>(null); // Properly typed state
   const [parts, setParts] = useState<Part[] | null>(null);
@@ -70,6 +89,12 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
   const [isInsuranceDetails, setIsInsuranceDetails] = useState(false);
 
   const [isEdited, setIsEdited] = useState(false);
+
+  const [jobCardInvoices, setJobCardInvoices] = useState<Invoice[]>();
+
+  const [invoiceCounter, setInvoiceCounter] = useState(0);
+
+  const [buttonLoading, setButtonLoading] = useState(false);
 
   useEffect(() => {
     // console.log("THERE WAS AN EDIT");
@@ -90,8 +115,8 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
   }, [isEdited]);
 
   useEffect(() => {
-    console.log("THERE WAS A CHANGE - ", currentParts);
-  }, [currentParts]);
+    console.log("THERE WAS A CHANGE - ", currentParts, currentLabour);
+  }, [currentParts, currentLabour]);
 
   useEffect(() => {
     const getUser = () => {
@@ -104,7 +129,7 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
 
     const getJobCardDetails = async () => {
       const jobCardObj = await getJobCardById(params.jobCardId);
-      // console.log("This is the Job Card - ", jobCardObj);
+      console.log("This is the Job Card - ", jobCardObj);
 
       const prevParts = stringToObj(jobCardObj.parts);
       console.log("Current Parts - ", prevParts);
@@ -131,6 +156,21 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
       setCar((prev) => carObj);
     };
 
+    const getJobCardInvoices = async () => {
+      const invoices = await getAllInvoices();
+      // console.log("THE INVOICES ARE = ", invoices);
+
+      setInvoiceCounter(invoices.documents[0].invoiceNumber + 1);
+
+      const jobCardInvoicesArr = invoices.documents.filter(
+        (invoice: Invoice) => invoice.jobCardId == params.jobCardId
+      );
+
+      console.log("INVOICES FOR THIS JC - ", jobCardInvoicesArr);
+
+      setJobCardInvoices(jobCardInvoicesArr);
+    };
+
     const getParts = async () => {
       const partsObj = await getAllParts();
       // console.log("THESE ARE THE PARTS - ", partsObj);
@@ -149,6 +189,8 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
 
     getLabour();
 
+    getJobCardInvoices();
+
     getJobCardDetails();
   }, []);
 
@@ -166,18 +208,32 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
     const labour = objToStringArr(currentLabour);
 
     const amounts = calcAllAmts(currentParts, currentLabour);
+    const taxes: TaxObj[] = createTaxObj(currentParts, currentLabour);
+
+    console.log("TAXES ON THE FRONT - ", taxes);
+
+    const strTaxes = objToStringArr(taxes);
 
     console.log("THESE ARE THE AMOUNTS - ", amounts);
+
+    let tempJobCard = jobCard;
+    if (tempJobCard) {
+      tempJobCard.subTotal = amounts.subTotal;
+      tempJobCard.discountAmt = amounts.discountAmt;
+      tempJobCard.amount = amounts.amount;
+
+      setJobCard((prev) => tempJobCard);
+    }
 
     const isDone = await updateJobCardById(
       params.jobCardId,
       parts,
       labour,
       status,
-      amounts.partsAmtPreTax,
-      amounts.partsAmtPostTax,
-      amounts.labourAmtPreTax,
-      amounts.labourAmtPostTax
+      amounts.subTotal,
+      amounts.discountAmt,
+      amounts.amount,
+      strTaxes
     );
 
     console.log(isDone);
@@ -191,33 +247,80 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
   };
 
   const generateQuote = async () => {
+    setButtonLoading((prev) => true);
     await saveCurrentPartsAndLbour(3);
-    setCurrentJobCardStatus(3);
 
-    toast("Quote Generated \u2705");
+    console.log("JOB CARD OBJ = ", jobCard);
+
+    // await fetch(`http://localhost:3000${pathname}/invoice`, {
+    //   method: "POST",
+    //   body: JSON.stringify({
+    //     jobCard,
+    //     car,
+    //     currentParts,
+    //     currentLabour,
+    //     currentJobCardStatus,
+    //     invoiceCounter,
+    //   }),
+    // }).then((result: any) => {
+    //   result.json().then((invoiceDetails: any) => {
+    //     openInNewTab(invoiceDetails.invoiceUrl);
+    //   });
+    //   setButtonLoading((prev) => false);
+    //   setCurrentJobCardStatus(3);
+
+    //   toast("Quote Generated \u2705");
+    // });
   };
 
   const generateProFormaInvoice = async () => {
+    setButtonLoading((prev) => true);
     await saveCurrentPartsAndLbour(4);
-    setCurrentJobCardStatus(4);
 
-    toast("Pro-Forma Invoice Generated \u2705");
+    await fetch(`http://localhost:3000${pathname}/invoice`, {
+      method: "POST",
+      body: JSON.stringify({
+        jobCard,
+        car,
+        currentParts,
+        currentLabour,
+        currentJobCardStatus,
+        invoiceCounter,
+      }),
+    }).then((result: any) => {
+      result.json().then((invoiceDetails: any) => {
+        openInNewTab(invoiceDetails.invoiceUrl);
+      });
+      setButtonLoading((prev) => false);
+      setCurrentJobCardStatus(4);
+
+      toast("Pro-Forma Invoice Generated \u2705");
+    });
   };
 
   const generateTaxInvoice = async () => {
-    const isDone = await updateJobCardById(
-      params.jobCardId,
-      jobCard?.parts,
-      jobCard?.labour,
-      5
-    );
+    setButtonLoading((prev) => true);
+    await saveCurrentPartsAndLbour(5);
 
-    setCurrentJobCardStatus(5);
+    await fetch(`http://localhost:3000${pathname}/invoice`, {
+      method: "POST",
+      body: JSON.stringify({
+        jobCard,
+        car,
+        currentParts,
+        currentLabour,
+        currentJobCardStatus,
+        invoiceCounter,
+      }),
+    }).then((result: any) => {
+      result.json().then((invoiceDetails: any) => {
+        openInNewTab(invoiceDetails.invoiceUrl);
+      });
+      setButtonLoading((prev) => false);
+      setCurrentJobCardStatus(5);
 
-    if (isDone) {
-      // console.log("IT IS DONE");
       toast("Tax Invoice Generated \u2705");
-    }
+    });
   };
 
   const saveInsuranceDetails = async () => {
@@ -241,6 +344,26 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
     }
   };
 
+  const openInNewTab = (url: string) => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const handleInvoicePDF = (selectedValue: string) => {
+    console.log("SELECTED PDF - ", selectedValue);
+    console.log(jobCardInvoices);
+    if (jobCardInvoices) {
+      const filteredInvoices: Invoice[] = jobCardInvoices?.filter(
+        (invoice: Invoice) => invoice.invoiceType == selectedValue
+      );
+      filteredInvoices?.sort(
+        (a, b) =>
+          new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime()
+      );
+      const selectedInvoice = filteredInvoices[0];
+      openInNewTab(selectedInvoice.invoiceUrl);
+    }
+  };
+
   return (
     <div className="flex flex-col w-[90%] mt-5 space-y-8">
       {!(parts && jobCard && car && user) ? (
@@ -256,46 +379,122 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
                 <div>Back to All Job cards</div>
               </Link>
             </div>
-            {currentJobCardStatus == 1 && (
-              <Button
-                variant="outline"
-                className="px-8 py-2 bg-red-500 text-white hover:bg-red-400 hover:text-white"
-                size="lg"
-                onClick={() => saveCurrentPartsAndLbour()}
-              >
-                Save
-              </Button>
-            )}
-            {currentJobCardStatus == 2 && (
-              <Button
-                variant="outline"
-                className="px-8 py-2 bg-red-500 text-white hover:bg-red-400 hover:text-white"
-                size="lg"
-                onClick={generateQuote}
-              >
-                Generate Quote
-              </Button>
-            )}
-            {currentJobCardStatus == 3 && (
-              <Button
-                variant="outline"
-                className="px-8 py-2 bg-red-500 text-white hover:bg-red-400 hover:text-white"
-                size="lg"
-                onClick={generateProFormaInvoice}
-              >
-                Generate Pro-Forma Invoice
-              </Button>
-            )}
-            {currentJobCardStatus == 4 && (
-              <Button
-                variant="outline"
-                className="px-8 py-2 bg-red-500 text-white hover:bg-red-400 hover:text-white"
-                size="lg"
-                // onClick={generateQuote}
-              >
-                Generate Tax Invoice
-              </Button>
-            )}
+            <div className="flex flex-row space-x-5 justify-normal items-center">
+              {currentJobCardStatus! > 2 && (
+                <div>
+                  <Select
+                    onValueChange={(value) => {
+                      handleInvoicePDF(value);
+                    }}
+                  >
+                    <SelectTrigger className="w-full p-2 border border-red-500 text-red-500 rounded-lg">
+                      <SelectValue placeholder="Download" />
+                    </SelectTrigger>
+                    <SelectContent className="w-full">
+                      {invoiceTypes.map((invoiceType, index) => (
+                        <div key={index}>
+                          {invoiceType.code <= currentJobCardStatus! && (
+                            <SelectItem
+                              key={index}
+                              value={invoiceType.description}
+                            >
+                              {invoiceType.description}
+                            </SelectItem>
+                          )}
+                        </div>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {currentJobCardStatus == 1 && (
+                <Button
+                  variant="outline"
+                  className="px-8 py-2 bg-red-500 text-white hover:bg-red-400 hover:text-white"
+                  size="lg"
+                  onClick={() => saveCurrentPartsAndLbour()}
+                >
+                  Save
+                </Button>
+              )}
+              {currentJobCardStatus == 2 && (
+                <Button
+                  variant="outline"
+                  className={`px-8 py-2 bg-red-500 text-white hover:bg-red-400 hover:text-white ${
+                    buttonLoading ? "opacity-50" : ""
+                  }`}
+                  size="lg"
+                  onClick={generateQuote}
+                  disabled={buttonLoading}
+                >
+                  {buttonLoading ? (
+                    <>
+                      <Image src={loader} width={50} height={50} alt="Logo" />
+                    </>
+                  ) : (
+                    <>Generate Quote</>
+                  )}
+                </Button>
+              )}
+              {currentJobCardStatus == 3 && (
+                <Button
+                  variant="outline"
+                  className={`px-8 py-2 bg-red-500 text-white hover:bg-red-400 hover:text-white ${
+                    buttonLoading ? "opacity-50" : ""
+                  }`}
+                  size="lg"
+                  onClick={generateProFormaInvoice}
+                  disabled={buttonLoading}
+                >
+                  {buttonLoading ? (
+                    <>
+                      <Image src={loader} width={50} height={50} alt="Logo" />
+                    </>
+                  ) : (
+                    <>Generate Pro-Forma Invoice</>
+                  )}
+                </Button>
+              )}
+              {currentJobCardStatus == 4 && (
+                <Button
+                  variant="outline"
+                  className={`px-8 py-2 bg-red-500 text-white hover:bg-red-400 hover:text-white ${
+                    buttonLoading ? "opacity-50" : ""
+                  }`}
+                  size="lg"
+                  onClick={generateTaxInvoice}
+                  disabled={buttonLoading}
+                >
+                  {buttonLoading ? (
+                    <>
+                      <Image src={loader} width={50} height={50} alt="Logo" />
+                    </>
+                  ) : (
+                    <>Generate Tax Invoice</>
+                  )}
+                </Button>
+              )}
+              {currentJobCardStatus == 5 && (
+                <Button
+                  variant="outline"
+                  className={`px-8 py-2 bg-red-500 text-white hover:bg-red-400 hover:text-white ${
+                    buttonLoading ? "opacity-50" : ""
+                  }`}
+                  size="lg"
+                  // onClick={generateTaxInvoice}
+                  disabled={buttonLoading}
+                >
+                  {buttonLoading ? (
+                    <>
+                      <Image src={loader} width={50} height={50} alt="Logo" />
+                    </>
+                  ) : (
+                    <>Generate Gate Pass</>
+                  )}
+                </Button>
+              )}
+            </div>
           </div>
           <div>
             <div>
@@ -306,7 +505,7 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
                 <span className="font-medium ml-2 text-2xl text-gray-700">{`(${car.carMake} ${car.carModel})`}</span>
               </div>
               <div className="font-medium text-gray-500">
-                #JobCardId : {jobCard.$id}
+                <div>#JobCardNumber : {jobCard.jobCardNumber}</div>
               </div>
             </div>
           </div>
@@ -419,6 +618,9 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
               currentLabours={currentLabour}
               setCurrentLabour={setCurrentLabour}
               setIsEdited={setIsEdited}
+              user={user}
+              currentJobCardStatus={currentJobCardStatus}
+              isInsuranceDetails={isInsuranceDetails}
             />
           </div>
         </>

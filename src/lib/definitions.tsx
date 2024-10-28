@@ -23,6 +23,8 @@ export interface Part {
   category: string;
   mrp: number;
   gst: number;
+  cgst: number;
+  sgst: number;
   $id: string;
   $createdAt: string;
   $updatedAt: string;
@@ -46,6 +48,9 @@ export interface JobCard {
   partsTotalPostTax: number;
   labourTotalPreTax: number;
   labourTotalPostTax: number;
+  subTotal: number;
+  discountAmt: number;
+  amount: number;
   jobCardNumber: number;
   insuranceDetails: string;
   $id: string;
@@ -57,16 +62,23 @@ export interface JobCard {
 }
 
 export type CurrentPart = {
-  $id: string;
+  partId: string;
   partName: string;
   partNumber: string;
   mrp: number;
   gst: number;
   hsn: string;
+  cgst: number;
+  sgst: number;
   quantity: number;
+  subTotal: number;
+  cgstAmt: number;
+  sgstAmt: number;
+  totalTax: number;
   amount: number;
-  discount?: number;
-  insurance?: number;
+  discountPercentage?: number;
+  discountAmt?: number;
+  insurancePercentage?: number;
   insuranceAmt?: number;
   customerAmt?: number;
 };
@@ -78,6 +90,8 @@ export interface Labour {
   category: string;
   mrp: number;
   gst: number;
+  cgst: number;
+  sgst: number;
   $id: string;
   $createdAt: string;
   $updatedAt: string;
@@ -87,13 +101,25 @@ export interface Labour {
 }
 
 export type CurrentLabour = {
-  $id: string;
+  labourId: string;
   labourName: string;
   labourCode: string;
   mrp: number;
+  hsn: string;
   gst: number;
+  cgst: number;
+  sgst: number;
   quantity: number;
+  subTotal: number;
+  cgstAmt: number;
+  sgstAmt: number;
+  totalTax: number;
   amount: number;
+  discountPercentage?: number;
+  discountAmt?: number;
+  insurancePercentage?: number;
+  insuranceAmt?: number;
+  customerAmt?: number;
 };
 
 export type TempCar = {
@@ -149,3 +175,24 @@ export type UserType = {
   targets: Target[];
   accessedAt: string;
 };
+
+export interface Invoice {
+  invoiceUrl: string;
+  jobCardId: string;
+  carNumber: string;
+  invoiceType: string;
+  invoiceNumber: number;
+  $id: string;
+  $createdAt: string;
+  $updatedAt: string;
+  $permissions: string[]; // Assuming it's an array of strings, adjust if different
+  $databaseId: string;
+  $collectionId: string;
+}
+
+export interface TaxObj {
+  taxType: string;
+  taxRate: number;
+  taxName: string;
+  taxAmt: number;
+}

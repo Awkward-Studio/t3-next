@@ -32,6 +32,9 @@ export async function middleware(request: NextRequest) {
       case "service":
         redirectURL = "/service";
         break;
+      case "admin":
+        redirectURL = "/admin";
+        break;
 
       default:
         break;
@@ -56,7 +59,7 @@ export const config = {
     "/parts/:path*",
     "/biller/:path*",
     "/security/:path*",
-
+    "/admin/:path*",
     "/service/:path*",
     "/",
   ],

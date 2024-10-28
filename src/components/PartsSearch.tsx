@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "./ui/input";
 import { CurrentPart, Part } from "@/lib/definitions";
-import { taxAmtHelper } from "@/lib/helper";
+import {
+  createTempPartObj,
+  taxAmtHelper,
+  updateTempPartObjQuantity,
+} from "@/lib/helper";
 
 export default function PartsSearch({
   items,
@@ -40,37 +44,19 @@ export default function PartsSearch({
     console.log("Clicked Part - ", item);
     console.log("CURRENT PARTS - ", currentParts);
 
-    let currentPartObj = {
-      $id: item.$id,
-      partName: item.partName,
-      partNumber: item.partNumber,
-      hsn: item.hsn,
-      category: item.category,
-      mrp: item.mrp,
-      gst: item.gst,
-      quantity: 1,
-      amount: taxAmtHelper(item.mrp, 1, item.gst, 0, "value"),
-    };
+    let currentPartObj = createTempPartObj(item);
 
-    if (currentParts) {
-      let findIndex = currentParts?.findIndex((part) => part.$id == item.$id);
+    if (currentParts && currentPartObj) {
+      let findIndex = currentParts?.findIndex(
+        (part) => part.partId == item.$id
+      );
       // console.log(findIndex);
 
       if (findIndex != -1) {
         let arrayFirstHalf = currentParts.slice(0, findIndex);
         let arraySecondHalf = currentParts.slice(findIndex + 1);
 
-        currentPartObj.quantity = currentParts[findIndex].quantity + 1;
-
-        let newTaxAmt = taxAmtHelper(
-          currentPartObj.mrp,
-          currentPartObj.quantity,
-          currentPartObj.gst,
-          0,
-          "value"
-        );
-
-        currentPartObj.amount = newTaxAmt;
+        currentPartObj = updateTempPartObjQuantity(currentPartObj, 1);
 
         setCurrentParts([
           ...arrayFirstHalf,

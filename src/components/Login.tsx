@@ -27,7 +27,7 @@ function Login({}: Props) {
 
     console.log("THESE ARE THE USER DETAILS - ", userDetails);
     setCookie("user", JSON.stringify(userDetails));
-    console.log("COOKIE SET");
+    console.log("COOKIE SET", userDetails);
 
     const userAccess = userDetails.labels[0];
     let redirectURL = "/";
@@ -45,6 +45,9 @@ function Login({}: Props) {
         break;
       case "service":
         redirectURL = "/service";
+        break;
+      case "admin":
+        redirectURL = "/admin";
         break;
 
       default:
@@ -98,11 +101,11 @@ function Login({}: Props) {
           handleButtonPress={login}
           isLoading={isSigningIn}
         />
-        {/* <PrimaryButton
+        <PrimaryButton
           title={"Sign In"}
           handleButtonPress={logout}
           isLoading={isSigningIn}
-        /> */}
+        />
       </div>
     </div>
   );

@@ -26,7 +26,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Minus, Percent, Plus, Shield, Trash2, X } from "lucide-react";
 import PartsSearch from "@/components/PartsSearch";
-import { getUserAccess, splitInsuranceAmt, taxAmtHelper } from "@/lib/helper";
+import {
+  getUserAccess,
+  removeTempPartObjDiscount,
+  splitInsuranceAmt,
+  taxAmtHelper,
+  updateTempPartObjDiscount,
+  updateTempPartObjQuantity,
+} from "@/lib/helper";
 import { CurrentPart, Part, UserType } from "@/lib/definitions";
 import { Input } from "../ui/input";
 import { useEffect, useState } from "react";
@@ -68,13 +75,13 @@ export function CurrentPartsDataTable<TData, TValue>({
 
   useEffect(() => {
     let foundIndexDisc = currentParts?.findIndex(
-      (part) => part.discount && part.discount != 0
+      (part) => part.discountPercentage && part.discountPercentage != 0
     );
     console.log("FOUND INDEX", foundIndexDisc);
     setIsAlreadyDiscount(foundIndexDisc != -1);
 
     let foundIndexInsurance = currentParts?.findIndex(
-      (part) => part.insurance && part.insurance != 0
+      (part) => part.insurancePercentage && part.insurancePercentage != 0
     );
     console.log("FOUND INDEX", foundIndexInsurance);
     setIsAlreadyInsurance(foundIndexInsurance != -1);
@@ -99,69 +106,55 @@ export function CurrentPartsDataTable<TData, TValue>({
       return deleteRow(row);
     }
 
-    const toUpdateQty = currentParts?.find(
+    let toUpdateQty = currentParts?.find(
       (part) => part.partNumber == partNumber
     );
+
+    let updatedObj;
+
     if (toUpdateQty) {
-      toUpdateQty.quantity = prevQty + toUpdate;
+      if (toUpdate > 0) {
+        updatedObj = updateTempPartObjQuantity(toUpdateQty, 1);
+      } else {
+        updatedObj = updateTempPartObjQuantity(toUpdateQty, -1);
+      }
 
-      const validMrp = toUpdateQty.mrp ?? 0;
-      const validGst = toUpdateQty.gst ?? 0;
-      const validDiscount = toUpdateQty.discount ?? 0;
-      const validQuantity = toUpdateQty.quantity ?? 1;
-
-      let newTaxAmt = taxAmtHelper(
-        validMrp,
-        validQuantity,
-        validGst,
-        validDiscount,
-        "value"
-      );
-
-      toUpdateQty.amount = Number(newTaxAmt);
-
-      setCurrentParts([...arrayFirstHalf, toUpdateQty, ...arraySecondHalf]);
+      setCurrentParts([...arrayFirstHalf, updatedObj, ...arraySecondHalf]);
       setIsEdited(true);
     } else {
       console.log("Some Error has Occured");
     }
   };
 
-  const handleAllDiscount = (discount: string) => {
-    if (Number(discount) > 15) {
-      toast("Discount More than 15% is not allowed");
-    } else {
-      let tempObj = currentParts;
-      console.log("ALL DISCOUNT - ", discount);
-      tempObj!.map((part) => {
-        part.discount = Number(discount);
-        let newTaxAmt = taxAmtHelper(
-          part.mrp,
-          part.quantity,
-          part.gst,
-          Number(discount),
-          "value"
-        );
-
-        part.amount = Number(newTaxAmt);
-      });
-      setCurrentParts([...tempObj!]);
-      setIsEdited(true);
+  const handleAllDiscount = (discount: number) => {
+    if (currentParts) {
+      if (Number(discount) > 15) {
+        toast("Discount More than 15% is not allowed");
+      } else {
+        let newArr: CurrentPart[] = [];
+        currentParts?.map((part: CurrentPart) => {
+          const updatedPartObj = updateTempPartObjDiscount(part, discount);
+          console.log("UPDATED OBJ - ", updatedPartObj);
+          newArr.push(updatedPartObj!);
+        });
+        setCurrentParts([...newArr!]);
+        setIsEdited(true);
+      }
     }
   };
 
   const removeAllDiscount = () => {
-    let tempObj = currentParts;
-
-    tempObj!.map((part) => {
-      part.discount = undefined;
+    let newArr: CurrentPart[] = [];
+    currentParts?.map((part: CurrentPart) => {
+      const updatedPartObj = removeTempPartObjDiscount(part);
+      newArr.push(updatedPartObj!);
     });
-    setCurrentParts([...tempObj!]);
+    setCurrentParts([...newArr!]);
     setIsDiscount(false);
     // setIsEdited(true);
   };
 
-  const handleDiscount = (row: any, discount: string) => {
+  const handleDiscount = (row: any, discount: number) => {
     if (Number(discount) > 15) {
       toast("Discount More than 15% is not allowed");
     } else {
@@ -174,19 +167,11 @@ export function CurrentPartsDataTable<TData, TValue>({
         (part) => part.partNumber == partNumber
       );
 
+      let updatedObj;
+
       if (toUpdateDisc) {
-        toUpdateDisc.discount = Number(discount);
-
-        let newTaxAmt = taxAmtHelper(
-          toUpdateDisc.mrp,
-          toUpdateDisc.quantity,
-          toUpdateDisc.gst,
-          Number(discount),
-          "value"
-        );
-
-        toUpdateDisc.amount = Number(newTaxAmt);
-        setCurrentParts([...arrayFirstHalf, toUpdateDisc, ...arraySecondHalf]);
+        updatedObj = updateTempPartObjDiscount(toUpdateDisc, discount);
+        setCurrentParts([...arrayFirstHalf, updatedObj, ...arraySecondHalf]);
         setIsEdited(true);
       }
     }
@@ -196,7 +181,7 @@ export function CurrentPartsDataTable<TData, TValue>({
     let tempObj = currentParts;
     console.log("ALL insurance - ", insurance);
     tempObj!.map((part) => {
-      part.insurance = Number(insurance);
+      part.insurancePercentage = Number(insurance);
       // console.log(splitInsuranceAmt(part.amount, Number(insurance)));
       let splitAmts = splitInsuranceAmt(
         Number(
@@ -204,7 +189,7 @@ export function CurrentPartsDataTable<TData, TValue>({
             part.mrp,
             part.quantity,
             part.gst,
-            part.discount,
+            part.discountPercentage,
             "value"
           )
         ),
@@ -221,7 +206,7 @@ export function CurrentPartsDataTable<TData, TValue>({
     let tempObj = currentParts;
 
     tempObj!.map((part) => {
-      part.insurance = undefined;
+      part.insurancePercentage = undefined;
       part.customerAmt = undefined;
       part.insuranceAmt = undefined;
     });
@@ -241,13 +226,13 @@ export function CurrentPartsDataTable<TData, TValue>({
     );
 
     if (toUpdateInsurance) {
-      toUpdateInsurance.insurance = Number(insurance);
+      toUpdateInsurance.insurancePercentage = Number(insurance);
 
       let newTaxAmt = taxAmtHelper(
         toUpdateInsurance.mrp,
         toUpdateInsurance.quantity,
         toUpdateInsurance.gst,
-        toUpdateInsurance.discount,
+        toUpdateInsurance.discountPercentage,
         "value"
       );
 
@@ -312,13 +297,8 @@ export function CurrentPartsDataTable<TData, TValue>({
                       <Input
                         placeholder="Discount on All Parts"
                         type="number"
-                        // value={
-                        //   (table
-                        //     .getColumn("carNumber")
-                        //     ?.getFilterValue() as string) ?? ""
-                        // }
                         onChange={(event) =>
-                          handleAllDiscount(event.target.value)
+                          handleAllDiscount(Number(event.target.value))
                         }
                         className="max-w-sm"
                       />
@@ -383,8 +363,9 @@ export function CurrentPartsDataTable<TData, TValue>({
                 {headerGroup.headers.map((header) => {
                   if (
                     header.id != "quantity" &&
-                    header.id != "discount" &&
-                    header.id != "insurance"
+                    header.id != "amount" &&
+                    header.id != "discountPercentage" &&
+                    header.id != "insurancePercentage"
                   ) {
                     return (
                       <TableHead key={header.id}>
@@ -437,8 +418,9 @@ export function CurrentPartsDataTable<TData, TValue>({
                   {row.getVisibleCells().map((cell) => {
                     if (
                       cell.column.id != "quantity" &&
-                      cell.column.id != "discount" &&
-                      cell.column.id != "insurance"
+                      cell.column.id != "insurancePercentage" &&
+                      cell.column.id != "amount" &&
+                      cell.column.id != "discountPercentage"
                     ) {
                       return (
                         <TableCell key={cell.id}>
@@ -476,9 +458,9 @@ export function CurrentPartsDataTable<TData, TValue>({
                     >
                       <Input
                         placeholder="%"
-                        value={row.getValue("discount") || 0}
+                        value={row.getValue("discountPercentage") || 0}
                         onChange={(event) =>
-                          handleDiscount(row, event.target.value)
+                          handleDiscount(row, Number(event.target.value))
                         }
                         className="w-10"
                       />
@@ -502,14 +484,7 @@ export function CurrentPartsDataTable<TData, TValue>({
                         )}
                       </>
                     ) : (
-                      <>
-                        {taxAmtHelper(
-                          row.getValue("mrp"),
-                          row.getValue("quantity"),
-                          row.getValue("gst"),
-                          row.getValue("discount")
-                        )}
-                      </>
+                      <>{row.getValue("amount")}</>
                     )}
                   </TableCell>
                   {(isInsurance || isAlreadyInsurance) && (
@@ -528,24 +503,6 @@ export function CurrentPartsDataTable<TData, TValue>({
                       />
                     </TableCell>
                   )}
-
-                  {/* {isInsurance && (
-                    <TableCell
-                      key={"INSURANCE_AMOUNT"}
-                      className="flex justify-center items-center h-full"
-                    >
-                      HELLO
-                    </TableCell>
-                  )}
-
-                  {isInsurance && (
-                    <TableCell
-                      key={"CUSTOMER_AMOUNT"}
-                      className="flex justify-center items-center h-full"
-                    >
-                      HELLOO
-                    </TableCell>
-                  )} */}
 
                   <TableCell key={"DELETE"}>
                     <Button

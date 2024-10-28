@@ -9,6 +9,7 @@ import {
   Font,
 } from "@react-pdf/renderer";
 import { CurrentLabour, CurrentPart } from "@/lib/definitions";
+import { roundToTwoDecimals } from "@/lib/helper";
 import { convertStringsToArray } from "@/lib/helper";
 
 Font.register({
@@ -154,6 +155,36 @@ const styles = StyleSheet.create({
   tableEmptyCell: {
     width: "50%",
   },
+  footerRow: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  observationTable: {
+    width: "40%",
+    height: "auto",
+    // backgroundColor: "#E11D48",
+    borderWidth: 1.5,
+    borderColor: "#000000",
+  },
+  observationRow: {},
+  totalsTable: {
+    width: "50%",
+    height: "auto",
+    // backgroundColor: "#E11D48",
+    borderWidth: 1.5,
+    borderColor: "#000000",
+  },
+  totalsTableRow: {
+    display: "flex",
+    flexDirection: "row",
+  },
+  totalsTableHeadingCell: {
+    width: "60%",
+    backgroundColor: "#D1D5DB",
+    borderWidth: 0.5,
+    borderColor: "#000000",
+  },
 });
 
 export const InvoicePDF = ({
@@ -163,15 +194,13 @@ export const InvoicePDF = ({
   logo,
   car,
   currentDate,
-  purposeOfVisitAndAdvisors
+  invoiceType,
+  invoiceNumber,
 }: any) => (
   
   <Document>
     {jobCard && car && parts && labour && (
       <Page size="A4" style={styles.page}>
-        <View style={styles.headingRow}>
-          <Text style={styles.heading}>T3 ALL CAR SERVICE</Text>
-        </View>
         <View style={styles.addressRow}>
           <Image style={styles.logo} src={logo} />
           <View style={styles.addressBlock}>
@@ -184,7 +213,7 @@ export const InvoicePDF = ({
           </View>
         </View>
         <View style={styles.invoiceTypeRow}>
-          <Text style={styles.invoiceType}>Tax Invoice</Text>
+          <Text style={styles.invoiceType}>{invoiceType}</Text>
         </View>
         <View style={styles.detailTablesRow}>
           <View style={styles.detailTable}>
@@ -271,7 +300,7 @@ export const InvoicePDF = ({
                 </Text>
               </View>
               <View style={styles.tableCell}>
-                <Text style={styles.tableData}>SER/5171</Text>
+                <Text style={styles.tableData}>{invoiceNumber}</Text>
               </View>
             </View>
             <View style={styles.tableRow}>
@@ -386,7 +415,7 @@ export const InvoicePDF = ({
                 <Text style={styles.tableData}>{part.mrp}</Text>
               </View>
               <View style={styles.tableCell}>
-                <Text style={styles.tableData}>{part.discount}</Text>
+                <Text style={styles.tableData}>{part.discountPercentage}</Text>
               </View>
               <View style={styles.tableCell}>
                 <Text style={styles.tableData}>{part.amount}</Text>
@@ -532,6 +561,74 @@ export const InvoicePDF = ({
             </View>
             <View style={styles.tableCell}>
               <Text style={styles.tableData}>{jobCard.labourTotalPostTax}</Text>
+            </View>
+          </View>
+        </View>
+        <View style={styles.footerRow}>
+          <View style={styles.observationTable}>
+            <View style={styles.tableTitleRow}>
+              <Text style={styles.tableTitle}>Observation and Remarks</Text>
+            </View>
+            <View style={styles.observationRow}>
+              <Text style={styles.tableData}>-</Text>
+            </View>
+          </View>
+          <View style={styles.totalsTable}>
+            <View style={styles.totalsTableRow}>
+              <View style={styles.totalsTableHeadingCell}>
+                <Text style={[styles.tableData, styles.tableDataEmphasized]}>
+                  Total Taxable Value:
+                </Text>
+              </View>
+              <View style={styles.tableCell}>
+                <Text style={styles.tableData}>
+                  {jobCard.partsTotalPreTax + jobCard.labourTotalPreTax}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.totalsTableRow}>
+              <View style={styles.totalsTableHeadingCell}>
+                <Text style={[styles.tableData, styles.tableDataEmphasized]}>
+                  Total GST Amount:
+                </Text>
+              </View>
+              <View style={styles.tableCell}>
+                <Text style={styles.tableData}>
+                  {roundToTwoDecimals(
+                    jobCard.partsTotalPostTax -
+                      jobCard.partsTotalPreTax +
+                      (jobCard.labourTotalPostTax - jobCard.labourTotalPreTax)
+                  )}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.totalsTableRow}>
+              <View style={styles.totalsTableHeadingCell}>
+                <Text style={[styles.tableData, styles.tableDataEmphasized]}>
+                  TOTAL:
+                </Text>
+              </View>
+              <View style={styles.tableCell}>
+                <Text style={styles.tableData}>
+                  {roundToTwoDecimals(
+                    jobCard.partsTotalPostTax + jobCard.labourTotalPostTax
+                  )}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.totalsTableRow}>
+              <View style={styles.totalsTableHeadingCell}>
+                <Text style={[styles.tableData, styles.tableDataEmphasized]}>
+                  TOTAL (rounded off):
+                </Text>
+              </View>
+              <View style={styles.tableCell}>
+                <Text style={styles.tableData}>
+                  {Math.round(
+                    jobCard.partsTotalPostTax + jobCard.labourTotalPostTax
+                  )}
+                </Text>
+              </View>
             </View>
           </View>
         </View>
