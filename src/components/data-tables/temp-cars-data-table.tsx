@@ -33,7 +33,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { convertStringsToArray, purposeOfVisits } from "@/lib/helper";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

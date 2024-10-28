@@ -190,7 +190,7 @@ export default function AddCarCards({ }: Props) {
             carNumber,
             carMake,
             carModel,
-            purposeOfVisit,
+            
             purposeOfVisitAndAdvisors
           );
           console.log(newCar);
@@ -199,7 +199,6 @@ export default function AddCarCards({ }: Props) {
             carNumber,
             carMake,
             carModel,
-            purposeOfVisit,
             purposeOfVisitAndAdvisors,
             newCar.$id
           );
@@ -218,7 +217,6 @@ export default function AddCarCards({ }: Props) {
             carNumber,
             carMake,
             carModel,
-            purposeOfVisit,
             purposeOfVisitAndAdvisors,
             isNewCar!,
           );

@@ -158,14 +158,13 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
 
           <div className="text-xl">
             <CurrentPartsDataTable
-              columns={currentPartsColumns}
-              data={currentParts}
-              currentParts={currentParts}
-              parts={parts}
-              setCurrentParts={setCurrentParts}
-              setIsEdited={setIsEdited}
-              user={user}
-            />
+                columns={currentPartsColumns}
+                data={currentParts}
+                currentParts={currentParts}
+                parts={parts}
+                setCurrentParts={setCurrentParts}
+                setIsEdited={setIsEdited}
+                user={user} isInsuranceDetails={false}            />
           </div>
         </>
       )}

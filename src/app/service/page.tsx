@@ -82,9 +82,6 @@ export default function Service({ }: Props) {
           console.log("fwefe",purpose)
           console.log(parsedToken.email);
           const cars = purpose.filter((item: any) => {
-            console.log(item.advisorEmail);
-            console.log(parsedToken.email);
-            console.log("XXXXX",parsedToken.email === item.advisorEmail);
             return povArr.includes(item.description) && (parsedToken.email === item.advisorEmail)
           }
           );

@@ -102,7 +102,7 @@ function Login({}: Props) {
           isLoading={isSigningIn}
         />
         <PrimaryButton
-          title={"Sign In"}
+          title={"clear session"}
           handleButtonPress={logout}
           isLoading={isSigningIn}
         />

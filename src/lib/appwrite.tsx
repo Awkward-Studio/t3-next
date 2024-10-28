@@ -112,7 +112,6 @@ export const createCar = async (
   carNumber: String,
   carMake: String,
   carModel: String,
-  purposeOfVisit: String,
   purposeOfVisitAndAdvisors: String[],
   location?: String
 ) => {
@@ -121,7 +120,7 @@ export const createCar = async (
       config.databaseId,
       config.carsCollectionId,
       ID.unique(),
-      { carNumber, carMake, carModel, purposeOfVisit, location, purposeOfVisitAndAdvisors }
+      { carNumber, carMake, carModel, location, purposeOfVisitAndAdvisors }
     );
     // console.log("The created Car is - ", result);
     return carsResult;
@@ -135,7 +134,6 @@ export const createTempCar = async (
   carNumber: String,
   carMake: String,
   carModel: String,
-  purposeOfVisit: String,
   purposeOfVisitAndAdvisors: String[],
   carsTableId: string,
   location?: String,
@@ -151,7 +149,6 @@ export const createTempCar = async (
         carMake,
         carModel,
         location,
-        purposeOfVisit,
         carStatus,
         carsTableId,
         purposeOfVisitAndAdvisors,

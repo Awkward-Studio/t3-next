@@ -196,6 +196,7 @@ export const InvoicePDF = ({
   currentDate,
   invoiceType,
   invoiceNumber,
+  purposeOfVisitAndAdvisors,
 }: any) => (
   
   <Document>
@@ -335,7 +336,6 @@ export const InvoicePDF = ({
                 {purposeOfVisitAndAdvisors.map((visit: any, index: any) => (
                   <Text>{visit.description}</Text>
                 ))}
-                <Text style={styles.tableData}>{car.purposeOfVisit}</Text>
               </View>
             </View>
           </View>

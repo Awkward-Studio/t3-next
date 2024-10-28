@@ -46,6 +46,8 @@ export async function POST(
 
     console.log("THIS IS THE INVOICE TYPE - ", invoiceTypeString);
 
+    const povs = convertStringsToArray(car.purposeOfVisitAndAdvisors)
+
     const stream = await renderToStream(
       <InvoicePDF
         jobCard={jobCard}
@@ -56,6 +58,7 @@ export async function POST(
         currentDate={new Date()}
         invoiceType={invoiceTypeString}
         invoiceNumber={invoiceCounter}
+        purposeOfVisitAndAdvisors={povs}
       />
     );
 

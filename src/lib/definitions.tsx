@@ -3,7 +3,6 @@ export interface Car {
   carMake: string;
   carModel: string;
   location: string;
-  purposeOfVisit: string;
   purposeOfVisitAndAdvisors: string[];
   jobCardId: string;
   carStatus: number;
@@ -127,7 +126,6 @@ export type TempCar = {
   carMake: string;
   carModel: string;
   location: string;
-  purposeOfVisit: string;
   purposeOfVisitAndAdvisors: string[];
   jobCardId: null | number;
   carStatus: number;

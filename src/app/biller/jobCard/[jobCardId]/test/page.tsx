@@ -38,7 +38,8 @@ export default function page() {
 
       setJobCard((prev) => jobCardObj);
       setCar((prev) => carObj);
-      const pov = convertStringsToArray(car?.purposeOfVisitAndAdvisors)
+      const pov = convertStringsToArray(carObj?.purposeOfVisitAndAdvisors)
+      console.log(pov)
       setPurposeOfVisitAndAdvisors(pov);
     };
 
@@ -174,13 +175,10 @@ export default function page() {
                     <td className=" border border-black font-bold">
                       Service Type:
                     </td>
-                    <td className=" border border-black">
-                      {car?.purposeOfVisit}
-                    </td>
                     {purposeOfVisitAndAdvisors?.map((visit: any, index: any) => (
-                        <td className=" border border-black">
+                        <tr className="">
                           {visit.description}
-                        </td>
+                        </tr>
                     ))}
                   </tr>
                 </tbody>
@@ -230,7 +228,7 @@ export default function page() {
                         </td>
                         <td className="p-1 border border-black">{part.mrp}</td>
                         <td className="p-1 border border-black">
-                          {part.discount}
+                          {part.discountAmt}
                         </td>
 
                         <td className="p-1 border border-black">

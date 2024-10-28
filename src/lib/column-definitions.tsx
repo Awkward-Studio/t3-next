@@ -312,10 +312,6 @@ export const tempCarsColumns: ColumnDef<TempCar>[] = [
       );
     },
   },
-  // {
-  //   accessorKey: "purposeOfVisit",
-  //   header: "POV",
-  // },
   {
     accessorKey: "purposeOfVisitAndAdvisors",
     header: "POV",
