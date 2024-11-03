@@ -189,9 +189,11 @@ export const createJobCard = async (
     }
     
     const purposeOfVisitAndAdvisors = convertStringsToArray(tempCar.purposeOfVisitAndAdvisors);
-    const purposeOfVisit = purposeOfVisitAndAdvisors.map((pov: any) => {
-      if (pov.advisorEmail === advisorEmail) return pov.description;
-    });
+    const purposeOfVisit = purposeOfVisitAndAdvisors.find((pov: any) => {
+      if (pov.advisorEmail === advisorEmail) return true;
+    }).description;
+
+    console.log(purposeOfVisit)
     
     let result = await databases.createDocument(
       config.databaseId,
