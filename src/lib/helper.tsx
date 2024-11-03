@@ -34,19 +34,19 @@ export const purposeOfVisits = [
 ];
 
 export const serviceAdvisors = [
-  {purposeOfVisitCode : 0, advisors: [
-    {name: "atique", email : "atique+serviceadvisor@mindise.co.in"},
+  {purposeOfVisitCode : 0, description:"General Visit", advisors: [
+    {name: "atique", email : "atique+serviceadvisor@mindise.co.in",},
     {name: "atique1", email : "atique1+serviceadvisor@mindise.co.in"}
   ]},
-  {purposeOfVisitCode : 1, advisors: [
+  {purposeOfVisitCode : 1, description:"Bodyshop", advisors: [
     {name: "omkar", email : "atqiude+serviceAdvisor@mindise.co.in"},
     {name: "atique2", email : "atqifue+serviceAdvisor@mindise.co.in"}
   ]},
-  {purposeOfVisitCode : 2, advisors: [
+  {purposeOfVisitCode : 2, description:"Paid service", advisors: [
     {name: "omkar1", email : "omkar+serviceadvisor@mindise.co.in"},
     {name: "aatiqu3", email : "atqiue+serviceAdvisor@mindise.co.in"}
   ]},
-  {purposeOfVisitCode : 3, advisors: [
+  {purposeOfVisitCode : 3, description:"Running repair", advisors: [
     {name: "omkar", email : "omkar+servicerunning@mindise.co.in"},
     {name: "atique4", email : "atqiu86e+serviceAdvisor@mindise.co.in"}
   ]},

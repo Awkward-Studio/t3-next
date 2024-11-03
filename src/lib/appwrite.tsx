@@ -177,6 +177,22 @@ export const createJobCard = async (
   jobCardNumber: number
 ) => {
   try {
+    const token = getCookie("user");
+    const parsedToken = JSON.parse(String(token));
+    const advisorEmail = parsedToken.email;
+    
+    // To update the tempcar status
+    const tempCar = await getTempCarById(carId);
+    if (!tempCar) {
+      console.log("Car not found");
+      return null;
+    }
+    
+    const purposeOfVisitAndAdvisors = convertStringsToArray(tempCar.purposeOfVisitAndAdvisors);
+    const purposeOfVisit = purposeOfVisitAndAdvisors.map((pov: any) => {
+      if (pov.advisorEmail === advisorEmail) return pov.description;
+    });
+    
     let result = await databases.createDocument(
       config.databaseId,
       config.jobCardsCollectionId,
@@ -194,22 +210,11 @@ export const createJobCard = async (
         carFuel,
         carOdometer,
         customerAddress,
+        purposeOfVisit
       }
     );
 
-    // To update the tempcar status
-    const tempCar = await getTempCarById(carId);
-    if (!tempCar) {
-      console.log("Car not found");
-      return null;
-    }
-
-    const token = getCookie("user");
-    const parsedToken = JSON.parse(String(token));
-    const advisorEmail = parsedToken.email;
-
     // Check if the user email matches an advisor and update `open` field if it exists
-    const purposeOfVisitAndAdvisors = convertStringsToArray(tempCar.purposeOfVisitAndAdvisors);
     const updatedPov = purposeOfVisitAndAdvisors.map((pov: any) => {
       if (pov.advisorEmail === advisorEmail && pov.open === false) {
         return { ...pov, open: true }; // Set `open` to true if it matches the advisor email
@@ -217,11 +222,15 @@ export const createJobCard = async (
       return pov;
     });
     const updatedPurposeOfVisitAndAdvisors = convertToStrings(updatedPov);
+
+    let allTempCarJobCardIds = tempCar.allJobCardIds;
+    allTempCarJobCardIds.push(result["$id"]);
+
     await databases.updateDocument(
       config.databaseId,
       config.tempCarsCollectionId, // collectionId
       carId, // documentId
-      { carStatus: 1, jobCardId: result["$id"], purposeOfVisitAndAdvisors: updatedPurposeOfVisitAndAdvisors } // data (optional)
+      { carStatus: 1, jobCardId: result["$id"], allJobCardIds: allTempCarJobCardIds, purposeOfVisitAndAdvisors: updatedPurposeOfVisitAndAdvisors } // data (optional)
     );
 
     const carHistory = await databases.getDocument(

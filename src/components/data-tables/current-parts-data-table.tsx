@@ -131,14 +131,23 @@ export function CurrentPartsDataTable<TData, TValue>({
       if (Number(discount) > 15) {
         toast("Discount More than 15% is not allowed");
       } else {
+        // console.log()
         let newArr: CurrentPart[] = [];
         currentParts?.map((part: CurrentPart) => {
+
           const updatedPartObj = updateTempPartObjDiscount(part, discount);
-          console.log("UPDATED OBJ - ", updatedPartObj);
-          newArr.push(updatedPartObj!);
+          if (updatedPartObj) {
+            // console.log("UPDATED OBJ - ", updatedPartObj);
+            newArr.push(updatedPartObj);
+          }
+
+          // console.log(updatedPartObj)
         });
-        setCurrentParts([...newArr!]);
-        setIsEdited(true);
+        if(newArr.length == currentParts.length){
+          setCurrentParts([...newArr!]);
+          setIsEdited(true);
+        }
+        
       }
     }
   };
@@ -372,9 +381,9 @@ export function CurrentPartsDataTable<TData, TValue>({
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   }

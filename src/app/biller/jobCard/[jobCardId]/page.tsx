@@ -252,25 +252,25 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
 
     console.log("JOB CARD OBJ = ", jobCard);
 
-    // await fetch(`http://localhost:3000${pathname}/invoice`, {
-    //   method: "POST",
-    //   body: JSON.stringify({
-    //     jobCard,
-    //     car,
-    //     currentParts,
-    //     currentLabour,
-    //     currentJobCardStatus,
-    //     invoiceCounter,
-    //   }),
-    // }).then((result: any) => {
-    //   result.json().then((invoiceDetails: any) => {
-    //     openInNewTab(invoiceDetails.invoiceUrl);
-    //   });
-    //   setButtonLoading((prev) => false);
-    //   setCurrentJobCardStatus(3);
+    await fetch(`http://localhost:3000${pathname}/invoice`, {
+      method: "POST",
+      body: JSON.stringify({
+        jobCard,
+        car,
+        currentParts,
+        currentLabour,
+        currentJobCardStatus,
+        invoiceCounter,
+      }),
+    }).then((result: any) => {
+      result.json().then((invoiceDetails: any) => {
+        openInNewTab(invoiceDetails.invoiceUrl);
+      });
+      setButtonLoading((prev) => false);
+      setCurrentJobCardStatus(3);
 
-    //   toast("Quote Generated \u2705");
-    // });
+      toast("Quote Generated \u2705");
+    });
   };
 
   const generateProFormaInvoice = async () => {

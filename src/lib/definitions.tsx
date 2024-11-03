@@ -52,6 +52,7 @@ export interface JobCard {
   amount: number;
   jobCardNumber: number;
   insuranceDetails: string;
+  purposeOfVisit: string;
   $id: string;
   $createdAt: string;
   $updatedAt: string;
@@ -128,6 +129,7 @@ export type TempCar = {
   location: string;
   purposeOfVisitAndAdvisors: string[];
   jobCardId: null | number;
+  allJobCardIds: string[];
   carStatus: number;
   carsTableId: null | number;
   $id: string;
