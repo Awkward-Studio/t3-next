@@ -128,7 +128,7 @@ export function CurrentPartsDataTable<TData, TValue>({
   };
 
   const handleAllDiscount = (discount: number) => {
-    if (!currentParts) return;
+    if (!currentParts) {return;}
   
     if (Number(discount) > 15) {
       toast("Discount More than 15% is not allowed");

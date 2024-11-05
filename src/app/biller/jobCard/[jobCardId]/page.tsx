@@ -100,13 +100,14 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
     // console.log("THERE WAS AN EDIT");
 
     const updateJobCardStatus = async () => {
-      if (jobCard?.jobCardStatus)
+      if (jobCard?.jobCardStatus) {
         await updateJobCardById(
           params.jobCardId,
           jobCard?.parts,
           jobCard?.labour,
           2
         );
+      }
       setCurrentJobCardStatus(2);
     };
 

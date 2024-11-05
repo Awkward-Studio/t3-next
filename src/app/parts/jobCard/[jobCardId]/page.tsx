@@ -74,7 +74,7 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
     console.log("Current Parts - ", currentParts);
     const parts = objToStringArr(currentParts);
 
-    if (jobCard?.jobCardStatus! < 2) {
+    if (jobCard && jobCard.jobCardStatus !== undefined && jobCard.jobCardStatus < 2) {
       const isDone = await updateJobCardById(
         params.jobCardId,
         parts,

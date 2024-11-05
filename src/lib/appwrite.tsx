@@ -109,11 +109,11 @@ export const getAllTempCars = async (statuses?: number[]) => {
 };
 
 export const createCar = async (
-  carNumber: String,
-  carMake: String,
-  carModel: String,
-  purposeOfVisitAndAdvisors: String[],
-  location?: String
+  carNumber: string,
+  carMake: string,
+  carModel: string,
+  purposeOfVisitAndAdvisors: string[],
+  location?: string
 ) => {
   try {
     let carsResult = await databases.createDocument(
@@ -131,12 +131,12 @@ export const createCar = async (
 };
 
 export const createTempCar = async (
-  carNumber: String,
-  carMake: String,
-  carModel: String,
-  purposeOfVisitAndAdvisors: String[],
+  carNumber: string,
+  carMake: string,
+  carModel: string,
+  purposeOfVisitAndAdvisors: string[],
   carsTableId: string,
-  location?: String,
+  location?: string,
 ) => {
   try {
     let carStatus = 0;

@@ -33,7 +33,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { jobCardStatusKey } from "@/app/lib/helper";
+import { jobCardStatusKey } from "@/lib/helper";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
