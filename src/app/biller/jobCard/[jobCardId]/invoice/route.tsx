@@ -8,7 +8,7 @@ import {
   base64Logo,
   invoiceTypes,
   streamToBuffer,
-  stringToObj,
+  convertStringsToArray, stringToObj,
 } from "@/lib/helper";
 import { NextRequest, NextResponse } from "next/server";
 import { InvoicePDF } from "@/components/InvoiceTest";
@@ -46,6 +46,8 @@ export async function POST(
 
     console.log("THIS IS THE INVOICE TYPE - ", invoiceTypeString);
 
+    const povs = convertStringsToArray(car.purposeOfVisitAndAdvisors)
+
     const stream = await renderToStream(
       <InvoicePDF
         jobCard={jobCard}
@@ -56,6 +58,7 @@ export async function POST(
         currentDate={new Date()}
         invoiceType={invoiceTypeString}
         invoiceNumber={invoiceCounter}
+        purposeOfVisitAndAdvisors={povs}
       />
     );
 

@@ -33,6 +33,25 @@ export const purposeOfVisits = [
   { code: 3, description: "Running repair" },
 ];
 
+export const serviceAdvisors = [
+  {purposeOfVisitCode : 0, description:"General Visit", advisors: [
+    {name: "atique", email : "atique+serviceadvisor@mindise.co.in",},
+    {name: "atique1", email : "atique1+serviceadvisor@mindise.co.in"}
+  ]},
+  {purposeOfVisitCode : 1, description:"Bodyshop", advisors: [
+    {name: "omkar", email : "atqiude+serviceAdvisor@mindise.co.in"},
+    {name: "atique2", email : "atqifue+serviceAdvisor@mindise.co.in"}
+  ]},
+  {purposeOfVisitCode : 2, description:"Paid service", advisors: [
+    {name: "omkar1", email : "omkar+serviceadvisor@mindise.co.in"},
+    {name: "aatiqu3", email : "atqiue+serviceAdvisor@mindise.co.in"}
+  ]},
+  {purposeOfVisitCode : 3, description:"Running repair", advisors: [
+    {name: "omkar", email : "omkar+servicerunning@mindise.co.in"},
+    {name: "atique4", email : "atqiu86e+serviceAdvisor@mindise.co.in"}
+  ]},
+];
+
 export const carMakeModels = [
   {
     company: "Maruti Suzuki",
@@ -294,7 +313,7 @@ export const taxAmtHelper = (
   if (value) {
     return amtPostGst;
   } else {
-    return <div>&#8377;{amtPostGst}</div>;
+    return <div>&#8377;{Number(amtPostGst)}</div>;
   }
 };
 
@@ -627,8 +646,8 @@ export const removeTempPartObjDiscount = (currentPartObj: CurrentPart) => {
 
     console.log("TEMP OBJECTS = ", tempSubTotal, tempCgstAmt, tempSgstAmt);
 
-    currentPartObj.discountPercentage = undefined;
-    currentPartObj.discountAmt = undefined;
+    currentPartObj.discountPercentage = 0;
+    currentPartObj.discountAmt = 0;
     currentPartObj.cgstAmt = tempCgstAmt;
     currentPartObj.sgstAmt = tempSgstAmt;
     currentPartObj.totalTax = roundToTwoDecimals(tempCgstAmt + tempSgstAmt);
@@ -650,8 +669,8 @@ export const removeTempLabourObjDiscount = (
 
     console.log("TEMP OBJECTS = ", tempSubTotal, tempCgstAmt, tempSgstAmt);
 
-    currentLabourObj.discountPercentage = undefined;
-    currentLabourObj.discountAmt = undefined;
+    currentLabourObj.discountPercentage = 0;
+    currentLabourObj.discountAmt = 0;
     currentLabourObj.cgstAmt = tempCgstAmt;
     currentLabourObj.sgstAmt = tempSgstAmt;
     currentLabourObj.totalTax = roundToTwoDecimals(tempCgstAmt + tempSgstAmt);
@@ -805,3 +824,12 @@ export const base64Logo =
 // Paid service
 // Bodyshop
 // General visit
+
+
+export function convertToStrings<T>(array: T[]): string[] {
+  return array.map(item => JSON.stringify(item));
+}
+
+export function convertStringsToArray(array: string[] | undefined): any {
+  return array?.map(item => JSON.parse(item));
+}

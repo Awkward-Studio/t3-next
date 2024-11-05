@@ -10,6 +10,7 @@ import {
 } from "@react-pdf/renderer";
 import { CurrentLabour, CurrentPart } from "@/lib/definitions";
 import { roundToTwoDecimals } from "@/lib/helper";
+import { convertStringsToArray } from "@/lib/helper";
 
 Font.register({
   family: "Open Sans",
@@ -195,12 +196,14 @@ export const InvoicePDF = ({
   currentDate,
   invoiceType,
   invoiceNumber,
+  purposeOfVisitAndAdvisors,
 }: any) => (
+  
   <Document>
     {jobCard && car && parts && labour && (
       <Page size="A4" style={styles.page}>
         <View style={styles.addressRow}>
-          <Image style={styles.logo} src={logo} />
+          <Image style={styles.logo} src={logo} alt-text="invoice" />
           <View style={styles.addressBlock}>
             <Text style={styles.workShopName}>CHANMUNDA MOTORS PVT. LTD.</Text>
             <Text style={styles.workShopAddress}>
@@ -330,7 +333,7 @@ export const InvoicePDF = ({
                 </Text>
               </View>
               <View style={styles.tableCell}>
-                <Text style={styles.tableData}>{car.purposeOfVisit}</Text>
+                <Text>{jobCard.purposeOfVisit}</Text>
               </View>
             </View>
           </View>

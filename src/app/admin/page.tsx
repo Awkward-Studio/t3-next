@@ -1,15 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { deleteCookie, getCookie } from "cookies-next";
-import PrimaryButton from "@/components/PrimaryButton";
-import { JobCardsDataTable } from "@/components/data-tables/job-cards-data-table";
-import DisplayCard from "@/components/DisplayCard";
+import { getCookie } from "cookies-next";
 import PartsPageSkeleton from "@/components/skeletons/PartsPageSkeleton";
-import { CarFront, Wrench, ListChecks, Plus } from "lucide-react";
-import { tempCarsColumns } from "@/lib/column-definitions";
 import {
   getAllCars,
   getAllInvoices,
@@ -18,7 +12,6 @@ import {
   getAllParts,
   getAllTempCars,
 } from "@/lib/appwrite";
-import { TempCarsDataTable } from "@/components/data-tables/temp-cars-data-table";
 import {
   Car,
   Invoice,

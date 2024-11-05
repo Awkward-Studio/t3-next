@@ -64,7 +64,7 @@ export function CurrentLabourDataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [isAddingParts, setIsAddingParts] = useState(false);
+  const [isAddingLabour, setIsAddingLabour] = useState(false);
 
   const [isDiscount, setIsDiscount] = useState(false);
   const [isAlreadyDiscount, setIsAlreadyDiscount] = useState(false);
@@ -122,24 +122,34 @@ export function CurrentLabourDataTable<TData, TValue>({
     } else {
       console.log("Some Error has Occured");
     }
-  };
+  }; 
 
   const handleAllDiscount = (discount: number) => {
-    if (currentLabours) {
-      if (Number(discount) > 15) {
-        toast("Discount More than 15% is not allowed");
+    if (!currentLabours) {return;}
+  
+    if (Number(discount) > 15) {
+      toast("Discount More than 15% is not allowed");
+      return;
+    }
+  
+    // Prepare a new array with updated discount values
+    const newArr: CurrentLabour[] = currentLabours.map((part: any) => {
+      if (discount === 0) {
+        // Reset discountPercentage and amount if discount is cleared
+        return removeTempLabourObjDiscount(part);
       } else {
-        let newArr: CurrentLabour[] = [];
-        currentLabours?.map((part: CurrentLabour) => {
-          const updatedPartObj = updateTempLabourObjDiscount(part, discount);
-          console.log("UPDATED OBJ - ", updatedPartObj);
-          newArr.push(updatedPartObj!);
-        });
-        setCurrentLabour([...newArr!]);
-        setIsEdited(true);
+        // Apply the specified discount
+        return updateTempLabourObjDiscount(part, discount) || part;
       }
+    });
+  
+    // Only update state if all parts are successfully updated
+    if (newArr.length === currentLabours.length) {
+      setCurrentLabour(newArr);
+      setIsEdited(true);
     }
   };
+  
 
   const removeAllDiscount = () => {
     let newArr: CurrentLabour[] = [];
@@ -153,26 +163,39 @@ export function CurrentLabourDataTable<TData, TValue>({
   };
 
   const handleDiscount = (row: any, discount: number) => {
-    if (Number(discount) > 15) {
-      toast("Discount More than 15% is not allowed");
-    } else {
-      let arrayFirstHalf = currentLabours!.slice(0, row.index);
-      let arraySecondHalf = currentLabours!.slice(row.index + 1);
-
-      const labourCode = row.getValue("labourCode");
-
-      const toUpdateDisc = currentLabours?.find(
-        (work) => work.labourCode == labourCode
-      );
-
-      let updatedObj;
-
-      if (toUpdateDisc) {
-        updatedObj = updateTempLabourObjDiscount(toUpdateDisc, discount);
-        setCurrentLabour([...arrayFirstHalf, updatedObj, ...arraySecondHalf]);
-        setIsEdited(true);
-      }
+    if (discount > 15) {
+      toast("Discount more than 15% is not allowed");
+      return;
     }
+  
+    const labourCode = row.getValue("labourCode");
+    const toUpdateDisc = currentLabours?.find((labour) => labour.labourCode === labourCode);
+  
+    if (!toUpdateDisc) {
+      console.log("Part not found or invalid part number");
+      return;
+    }
+  
+    let updatedObj;
+    
+    if (discount === 0) {
+      // Reset discountPercentage to 0 and restore original amount
+      updatedObj = removeTempLabourObjDiscount(toUpdateDisc);
+    } else {
+      // Apply the discount using your helper function
+      updatedObj = updateTempLabourObjDiscount(toUpdateDisc, discount);
+    }
+  
+    if (!updatedObj) {
+      console.log("Failed to update discount. Check helper function.");
+      return;
+    }
+  
+    // Update the parts list with the modified part
+    const arrayFirstHalf = currentLabours!.slice(0, row.index);
+    const arraySecondHalf = currentLabours!.slice(row.index + 1);
+    setCurrentLabour([...arrayFirstHalf, updatedObj, ...arraySecondHalf]);
+    setIsEdited(true);
   };
 
   const getAmountSplit = (amount: number, insurance: string) => {
@@ -191,6 +214,88 @@ export function CurrentLabourDataTable<TData, TValue>({
       </div>
     );
   };
+
+  const handleInsurance = (row: any, insurance: number) => {
+    if (insurance > 15) {
+      toast("Insurance percentage cannot exceed 100%");
+    } else {
+      let arrayFirstHalf = currentLabours!.slice(0, row.index);
+      let arraySecondHalf = currentLabours!.slice(row.index + 1);
+  
+      const labourCode = row.getValue("labourCode");
+  
+      const toUpdateInsurance = currentLabours?.find(
+        (work) => work.labourCode == labourCode
+      );
+  
+      if (toUpdateInsurance) {
+        toUpdateInsurance.insurancePercentage = Number(insurance);
+        let newTaxAmt = taxAmtHelper(
+          toUpdateInsurance.mrp,
+          toUpdateInsurance.quantity,
+          toUpdateInsurance.gst,
+          toUpdateInsurance.discountPercentage,
+          "value"
+        );
+  
+        let splitAmts = splitInsuranceAmt(Number(newTaxAmt), Number(insurance));
+  
+        toUpdateInsurance.customerAmt = splitAmts.customerAmt;
+        toUpdateInsurance.insuranceAmt = splitAmts.insuranceAmt;
+
+        toUpdateInsurance.amount = Number(newTaxAmt);
+        setCurrentLabour([
+          ...arrayFirstHalf,
+          toUpdateInsurance,
+          ...arraySecondHalf,
+        ]);
+        setIsEdited(true);
+      }
+    }
+  };
+  
+  const removeAllInsurance = () => {
+    let tempObj = currentLabours;
+
+    tempObj!.map((part) => {
+      part.insurancePercentage = undefined;
+      part.customerAmt = undefined;
+      part.insuranceAmt = undefined;
+    });
+    setCurrentLabour([...tempObj!]);
+    setIsInsurance(false);
+    // setIsEdited(true);
+  };
+
+  const handleAllInsurance = (insurance: number) => {
+    if (insurance > 15) {
+      toast("Discount more than 15% is not allowed");
+      return;
+    }
+    let tempObj = currentLabours;
+    console.log("ALL insurance - ", insurance);
+    tempObj!.map((labour: CurrentLabour) => {
+      labour.insurancePercentage = Number(insurance);
+      // console.log(splitInsuranceAmt(part.amount, Number(insurance)));
+      let splitAmts = splitInsuranceAmt(
+        Number(
+          taxAmtHelper(
+            labour.mrp,
+            labour.quantity,
+            labour.gst,
+            labour.discountPercentage,
+            "value"
+          )
+        ),
+        Number(insurance)
+      );
+      labour.customerAmt = splitAmts.customerAmt;
+      labour.insuranceAmt = splitAmts.insuranceAmt;
+    });
+    setCurrentLabour([...tempObj!]);
+    // setIsEdited(true);
+  };
+
 
   const table = useReactTable({
     data,
@@ -252,12 +357,12 @@ export function CurrentLabourDataTable<TData, TValue>({
                         //     .getColumn("carNumber")
                         //     ?.getFilterValue() as string) ?? ""
                         // }
-                        // onChange={(event) =>
-                        //   handleAllInsurance(event.target.value)
-                        // }
+                        onChange={(event) =>
+                          handleAllInsurance(Number(event.target.value))
+                        }
                         className="max-w-sm"
                       />
-                      {/* <X onClick={removeAllInsurance} /> */}
+                      <X onClick={removeAllInsurance} />
                     </div>
                   ) : (
                     <Button
@@ -398,7 +503,7 @@ export function CurrentLabourDataTable<TData, TValue>({
                               "value"
                             )
                           ),
-                          row.getValue("insurance")
+                          row.getValue("insurancePercentage")
                         )}
                       </>
                     ) : (
@@ -413,11 +518,10 @@ export function CurrentLabourDataTable<TData, TValue>({
                     >
                       <Input
                         placeholder="%"
-                        value={row.getValue("insurance") || 0}
-                        // onChange={(event) =>
-                        //   // handleDiscount(row, event.target.value)
-                        //   handleInsurance(row, event.target.value)
-                        // }
+                        value={row.getValue("insurancePercentage") || 0}
+                        onChange={(event) =>
+                          handleInsurance(row, Number(event.target.value))
+                        }
                         className="w-10"
                       />
                     </TableCell>
@@ -440,7 +544,7 @@ export function CurrentLabourDataTable<TData, TValue>({
           </TableBody>
         </Table>
         <div className="p-2">
-          {isAddingParts ? (
+          {isAddingLabour ? (
             <div className="flex px-3 space-x-3">
               <LabourSearch
                 items={labour}
@@ -450,7 +554,7 @@ export function CurrentLabourDataTable<TData, TValue>({
               />
               <Button
                 variant="link"
-                onClick={() => setIsAddingParts((prev) => false)}
+                onClick={() => setIsAddingLabour((prev) => false)}
               >
                 <X />
               </Button>
@@ -458,7 +562,7 @@ export function CurrentLabourDataTable<TData, TValue>({
           ) : (
             <Button
               variant="link"
-              onClick={() => setIsAddingParts((prev) => true)}
+              onClick={() => setIsAddingLabour((prev) => true)}
             >
               <div className="flex flex-row space-x-3 text-red-500 items-center">
                 <div>+ Add Parts</div>

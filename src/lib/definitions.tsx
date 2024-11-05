@@ -3,7 +3,7 @@ export interface Car {
   carMake: string;
   carModel: string;
   location: string;
-  purposeOfVisit: string;
+  purposeOfVisitAndAdvisors: string[];
   jobCardId: string;
   carStatus: number;
   carsTableId: string;
@@ -52,6 +52,7 @@ export interface JobCard {
   amount: number;
   jobCardNumber: number;
   insuranceDetails: string;
+  purposeOfVisit: string;
   $id: string;
   $createdAt: string;
   $updatedAt: string;
@@ -126,8 +127,9 @@ export type TempCar = {
   carMake: string;
   carModel: string;
   location: string;
-  purposeOfVisit: string;
+  purposeOfVisitAndAdvisors: string[];
   jobCardId: null | number;
+  allJobCardIds: string[];
   carStatus: number;
   carsTableId: null | number;
   $id: string;

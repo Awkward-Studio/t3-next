@@ -6,7 +6,7 @@ import logo from "../../../../../../public/assets/Logomark.png";
 import { usePathname } from "next/navigation";
 import { getJobCardById, getTempCarById } from "@/lib/appwrite";
 import { Car, CurrentLabour, CurrentPart, JobCard } from "@/lib/definitions";
-import { roundToTwoDecimals, stringToObj } from "@/lib/helper";
+import { convertStringsToArray, roundToTwoDecimals, stringToObj } from "@/lib/helper";
 
 export default function page() {
   const pathname = usePathname();
@@ -171,7 +171,7 @@ export default function page() {
                       Service Type:
                     </td>
                     <td className=" border border-black">
-                      {car?.purposeOfVisit}
+                      {jobCard.purposeOfVisit}
                     </td>
                   </tr>
                 </tbody>
@@ -221,7 +221,7 @@ export default function page() {
                         </td>
                         <td className="p-1 border border-black">{part.mrp}</td>
                         <td className="p-1 border border-black">
-                          {part.discount}
+                          {part.discountAmt}
                         </td>
 
                         <td className="p-1 border border-black">

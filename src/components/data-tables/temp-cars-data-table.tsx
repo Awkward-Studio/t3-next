@@ -12,6 +12,7 @@ import {
   getSortedRowModel,
   ColumnFiltersState,
   getFilteredRowModel,
+  FilterFn,
 } from "@tanstack/react-table";
 
 import {
@@ -32,7 +33,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { purposeOfVisits } from "@/lib/helper";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -82,7 +82,9 @@ export function TempCarsDataTable<TData, TValue>({
           {povCategories && (
             <Select
               onValueChange={(value) => {
-                table.getColumn("purposeOfVisit")?.setFilterValue(value);
+                table
+                  .getColumn("purposeOfVisitAndAdvisors") // Filter column for purposeOfVisitAndAdvisors
+                  ?.setFilterValue(value);
               }}
             >
               <SelectTrigger className="w-full">

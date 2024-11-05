@@ -96,11 +96,12 @@ export function CurrentPartsDataTable<TData, TValue>({
   };
 
   const handleQuantityUpdate = (row: any, toUpdate: number) => {
+    
     let arrayFirstHalf = currentParts!.slice(0, row.index);
     let arraySecondHalf = currentParts!.slice(row.index + 1);
 
     const partNumber = row.getValue("partNumber");
-    const prevQty = row.getValue("quantity");
+    const prevQty = (row.getValue("quantity") as number) ?? 0;
 
     if (prevQty == 1 && toUpdate < 0) {
       return deleteRow(row);
@@ -127,21 +128,31 @@ export function CurrentPartsDataTable<TData, TValue>({
   };
 
   const handleAllDiscount = (discount: number) => {
-    if (currentParts) {
-      if (Number(discount) > 15) {
-        toast("Discount More than 15% is not allowed");
+    if (!currentParts) {return;}
+  
+    if (Number(discount) > 15) {
+      toast("Discount More than 15% is not allowed");
+      return;
+    }
+  
+    // Prepare a new array with updated discount values
+    const newArr: CurrentPart[] = currentParts.map((part: any) => {
+      if (discount === 0) {
+        // Reset discountPercentage and amount if discount is cleared
+        return removeTempPartObjDiscount(part);
       } else {
-        let newArr: CurrentPart[] = [];
-        currentParts?.map((part: CurrentPart) => {
-          const updatedPartObj = updateTempPartObjDiscount(part, discount);
-          console.log("UPDATED OBJ - ", updatedPartObj);
-          newArr.push(updatedPartObj!);
-        });
-        setCurrentParts([...newArr!]);
-        setIsEdited(true);
+        // Apply the specified discount
+        return updateTempPartObjDiscount(part, discount) || part;
       }
+    });
+  
+    // Only update state if all parts are successfully updated
+    if (newArr.length === currentParts.length) {
+      setCurrentParts(newArr);
+      setIsEdited(true);
     }
   };
+  
 
   const removeAllDiscount = () => {
     let newArr: CurrentPart[] = [];
@@ -155,29 +166,48 @@ export function CurrentPartsDataTable<TData, TValue>({
   };
 
   const handleDiscount = (row: any, discount: number) => {
-    if (Number(discount) > 15) {
-      toast("Discount More than 15% is not allowed");
-    } else {
-      let arrayFirstHalf = currentParts!.slice(0, row.index);
-      let arraySecondHalf = currentParts!.slice(row.index + 1);
-
-      const partNumber = row.getValue("partNumber");
-
-      const toUpdateDisc = currentParts?.find(
-        (part) => part.partNumber == partNumber
-      );
-
-      let updatedObj;
-
-      if (toUpdateDisc) {
-        updatedObj = updateTempPartObjDiscount(toUpdateDisc, discount);
-        setCurrentParts([...arrayFirstHalf, updatedObj, ...arraySecondHalf]);
-        setIsEdited(true);
-      }
+    if (discount > 15) {
+      toast("Discount more than 15% is not allowed");
+      return;
     }
+  
+    const partNumber = row.getValue("partNumber");
+    const toUpdateDisc = currentParts?.find((part) => part.partNumber === partNumber);
+  
+    if (!toUpdateDisc) {
+      console.log("Part not found or invalid part number");
+      return;
+    }
+  
+    let updatedObj;
+    
+    if (discount === 0) {
+      // Reset discountPercentage to 0 and restore original amount
+      updatedObj = removeTempPartObjDiscount(toUpdateDisc);
+    } else {
+      // Apply the discount using your helper function
+      updatedObj = updateTempPartObjDiscount(toUpdateDisc, discount);
+    }
+  
+    if (!updatedObj) {
+      console.log("Failed to update discount. Check helper function.");
+      return;
+    }
+  
+    // Update the parts list with the modified part
+    const arrayFirstHalf = currentParts!.slice(0, row.index);
+    const arraySecondHalf = currentParts!.slice(row.index + 1);
+    setCurrentParts([...arrayFirstHalf, updatedObj, ...arraySecondHalf]);
+    setIsEdited(true);
   };
+  
+  
 
-  const handleAllInsurance = (insurance: string) => {
+  const handleAllInsurance = (insurance: number) => {
+    if (insurance > 15) {
+      toast("Discount more than 15% is not allowed");
+      return;
+    }
     let tempObj = currentParts;
     console.log("ALL insurance - ", insurance);
     tempObj!.map((part) => {
@@ -215,7 +245,11 @@ export function CurrentPartsDataTable<TData, TValue>({
     // setIsEdited(true);
   };
 
-  const handleInsurance = (row: any, insurance: string) => {
+  const handleInsurance = (row: any, insurance: number) => {
+    if (insurance > 15) {
+      toast("Discount more than 15% is not allowed");
+      return;
+    }
     let arrayFirstHalf = currentParts!.slice(0, row.index);
     let arraySecondHalf = currentParts!.slice(row.index + 1);
 
@@ -329,7 +363,7 @@ export function CurrentPartsDataTable<TData, TValue>({
                         //     ?.getFilterValue() as string) ?? ""
                         // }
                         onChange={(event) =>
-                          handleAllInsurance(event.target.value)
+                          handleAllInsurance(Number(event.target.value))
                         }
                         className="max-w-sm"
                       />
@@ -372,9 +406,9 @@ export function CurrentPartsDataTable<TData, TValue>({
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   }
@@ -476,11 +510,11 @@ export function CurrentPartsDataTable<TData, TValue>({
                               row.getValue("mrp"),
                               row.getValue("quantity"),
                               row.getValue("gst"),
-                              row.getValue("discount"),
+                              row.getValue("discountPercentage"),
                               "value"
                             )
                           ),
-                          row.getValue("insurance")
+                          row.getValue("insurancePercentage")
                         )}
                       </>
                     ) : (
@@ -494,10 +528,10 @@ export function CurrentPartsDataTable<TData, TValue>({
                     >
                       <Input
                         placeholder="%"
-                        value={row.getValue("insurance") || 0}
+                        value={row.getValue("insurancePercentage") || 0}
                         onChange={(event) =>
                           // handleDiscount(row, event.target.value)
-                          handleInsurance(row, event.target.value)
+                          handleInsurance(row, Number(event.target.value))
                         }
                         className="w-10"
                       />
