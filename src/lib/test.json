@@ -1,0 +1,184 @@
+{
+  "invoiceUrl": "https://ik.imagekit.io/ztq7tvia1/pdfs/6718a5e0001dd2fca88d_tax_invoice_Gfd6scp.pdf",
+  "jobCardId": "6718a5e0001dd2fca88d",
+  "carNumber": "JH05CE3205",
+  "invoiceType": "Tax Invoice",
+  "invoiceNumber": 30,
+  "jobCardDetails": {
+    "carId": "6718a4a1002ccf42585d",
+    "diagnosis": ["One", "Two", "three"],
+    "sendToPartsManager": true,
+    "carNumber": "JH05CE3205",
+    "jobCardStatus": 6,
+    "customerName": "Omkar",
+    "customerPhone": "9470302380",
+    "parts": [
+      {
+        "partId": "66f6cfb3003a88961d11",
+        "partName": "part3",
+        "partNumber": "97872",
+        "mrp": 340,
+        "gst": 18,
+        "hsn": "345675678",
+        "cgst": 9,
+        "sgst": 9,
+        "quantity": 5,
+        "subTotal": 1700,
+        "cgstAmt": 134.64,
+        "sgstAmt": 134.64,
+        "totalTax": 269.28,
+        "amount": 1765.28,
+        "discountPercentage": 12,
+        "discountAmt": 204
+      },
+      {
+        "partId": "66f6cf79002ba78532bd",
+        "partName": "part1",
+        "partNumber": "23127",
+        "mrp": 300,
+        "gst": 18,
+        "hsn": "80087",
+        "cgst": 9,
+        "sgst": 9,
+        "quantity": 4,
+        "subTotal": 1200,
+        "cgstAmt": 102.6,
+        "sgstAmt": 102.6,
+        "totalTax": 205.2,
+        "amount": 1345.2,
+        "discountPercentage": 5,
+        "discountAmt": 60
+      }
+    ],
+    "labour": [
+      {
+        "labourId": "66fa5eb1002f8b60f8b0",
+        "labourName": "labour2",
+        "labourCode": "88237",
+        "mrp": 100,
+        "gst": 12,
+        "hsn": "92863540856415",
+        "cgst": 6,
+        "sgst": 6,
+        "quantity": 4,
+        "subTotal": 400,
+        "cgstAmt": 22.32,
+        "sgstAmt": 22.32,
+        "totalTax": 44.64,
+        "amount": 416.64,
+        "discountPercentage": 7,
+        "discountAmt": 28
+      },
+      {
+        "labourId": "66fa5ec8003652cfc8ff",
+        "labourName": "labour3",
+        "labourCode": "68542854",
+        "mrp": 450,
+        "gst": 12,
+        "hsn": "78659967495",
+        "cgst": 6,
+        "sgst": 6,
+        "quantity": 3,
+        "subTotal": 1350,
+        "cgstAmt": 75.33,
+        "sgstAmt": 75.33,
+        "totalTax": 150.66,
+        "amount": 1406.16,
+        "discountPercentage": 7,
+        "discountAmt": 94.5
+      },
+      {
+        "labourId": "66fa5e670002de100299",
+        "labourName": "labour1",
+        "labourCode": "2187",
+        "mrp": 350,
+        "gst": 18,
+        "hsn": "00000874",
+        "cgst": 9,
+        "sgst": 9,
+        "quantity": 3,
+        "subTotal": 1050,
+        "cgstAmt": 87.89,
+        "sgstAmt": 87.89,
+        "totalTax": 175.78,
+        "amount": 1152.28,
+        "discountPercentage": 7,
+        "discountAmt": 73.5
+      }
+    ],
+    "partsTotalPreTax": 2708,
+    "partsTotalPostTax": 3422,
+    "labourTotalPreTax": 0,
+    "labourTotalPostTax": 0,
+    "jobCardNumber": 6,
+    "images": [
+      "{\"imageType\":\"Fuel\",\"thumbnailURL\":\"https://ik.imagekit.io/ztq7tvia1/tr:n-ik_ml_thumbnail/BEB3wL5_MJvDPh0RD.jpg\",\"imageURL\":\"https://ik.imagekit.io/ztq7tvia1/BEB3wL5_MJvDPh0RD.jpg\"}",
+      "{\"imageType\":\"Odometer\",\"thumbnailURL\":\"https://ik.imagekit.io/ztq7tvia1/tr:n-ik_ml_thumbnail/RUV31yI_JFKWPdP8s5.jpg\",\"imageURL\":\"https://ik.imagekit.io/ztq7tvia1/RUV31yI_JFKWPdP8s5.jpg\"}"
+    ],
+    "carFuel": "987987",
+    "carOdometer": "4897698476",
+    "customerAddress": "ahfgbiwhbwyheb",
+    "insuranceDetails": null,
+    "subTotal": 5700,
+    "discountAmt": 460,
+    "amount": 6085.56,
+    "taxes": [
+      [
+        {
+          "taxType": "GOODS",
+          "taxRate": 9,
+          "taxName": "CGST",
+          "taxAmt": 237.24
+        },
+        {
+          "taxType": "GOODS",
+          "taxRate": 9,
+          "taxName": "SGST",
+          "taxAmt": 237.24
+        },
+        {
+          "taxType": "SERVICES",
+          "taxRate": 6,
+          "taxName": "CGST",
+          "taxAmt": 87.89
+        },
+        {
+          "taxType": "SERVICES",
+          "taxRate": 6,
+          "taxName": "SGST",
+          "taxAmt": 87.89
+        },
+        {
+          "taxType": "SERVICES",
+          "taxRate": 9,
+          "taxName": "CGST",
+          "taxAmt": 97.65
+        },
+        {
+          "taxType": "SERVICES",
+          "taxRate": 9,
+          "taxName": "SGST",
+          "taxAmt": 97.65
+        }
+      ]
+    ],
+    "jobCardPDF": null,
+    "gatePassPDF": "https://ik.imagekit.io/ztq7tvia1/pdfs/6718a5e0001dd2fca88d_gatePass_hY9iDOF.pdf",
+    "$id": "6718a5e0001dd2fca88d",
+    "$createdAt": "2024-10-23T07:29:37.242+00:00",
+    "$updatedAt": "2024-10-26T08:10:40.583+00:00",
+    "$permissions": [
+      "read(\"user:67053c8e000e258df809\")",
+      "update(\"user:67053c8e000e258df809\")",
+      "delete(\"user:67053c8e000e258df809\")"
+    ],
+    "$databaseId": "66b10c670021dc021477",
+    "$collectionId": "66e80a830013e7a81f31"
+  },
+  "$id": "671ca0df001a4b2ac805",
+  "$createdAt": "2024-10-26T07:57:19.896+00:00",
+  "$updatedAt": "2024-10-26T07:57:19.896+00:00",
+  "$permissions": [],
+  "$databaseId": "66b10c670021dc021477",
+  "$collectionId": "6710ba53003b4b25a23d"
+}
