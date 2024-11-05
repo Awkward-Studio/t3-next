@@ -646,8 +646,8 @@ export const removeTempPartObjDiscount = (currentPartObj: CurrentPart) => {
 
     console.log("TEMP OBJECTS = ", tempSubTotal, tempCgstAmt, tempSgstAmt);
 
-    currentPartObj.discountPercentage = undefined;
-    currentPartObj.discountAmt = undefined;
+    currentPartObj.discountPercentage = 0;
+    currentPartObj.discountAmt = 0;
     currentPartObj.cgstAmt = tempCgstAmt;
     currentPartObj.sgstAmt = tempSgstAmt;
     currentPartObj.totalTax = roundToTwoDecimals(tempCgstAmt + tempSgstAmt);
@@ -669,8 +669,8 @@ export const removeTempLabourObjDiscount = (
 
     console.log("TEMP OBJECTS = ", tempSubTotal, tempCgstAmt, tempSgstAmt);
 
-    currentLabourObj.discountPercentage = undefined;
-    currentLabourObj.discountAmt = undefined;
+    currentLabourObj.discountPercentage = 0;
+    currentLabourObj.discountAmt = 0;
     currentLabourObj.cgstAmt = tempCgstAmt;
     currentLabourObj.sgstAmt = tempSgstAmt;
     currentLabourObj.totalTax = roundToTwoDecimals(tempCgstAmt + tempSgstAmt);

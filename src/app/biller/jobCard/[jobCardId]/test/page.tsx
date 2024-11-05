@@ -19,8 +19,6 @@ export default function page() {
 
   const currentDate = new Date();
 
-  const [purposeOfVisitAndAdvisors, setPurposeOfVisitAndAdvisors]: any[] = useState();
-
   useEffect(() => {
     const getJobCardDetails = async () => {
       const jobCardId = pathname.slice(16, 36);
@@ -38,9 +36,6 @@ export default function page() {
 
       setJobCard((prev) => jobCardObj);
       setCar((prev) => carObj);
-      const pov = convertStringsToArray(carObj?.purposeOfVisitAndAdvisors)
-      console.log(pov)
-      setPurposeOfVisitAndAdvisors(pov);
     };
 
     getJobCardDetails();
@@ -175,11 +170,9 @@ export default function page() {
                     <td className=" border border-black font-bold">
                       Service Type:
                     </td>
-                    {purposeOfVisitAndAdvisors?.map((visit: any, index: any) => (
-                        <tr className="">
-                          {visit.description}
-                        </tr>
-                    ))}
+                    <td className=" border border-black">
+                      {jobCard.purposeOfVisit}
+                    </td>
                   </tr>
                 </tbody>
               </table>

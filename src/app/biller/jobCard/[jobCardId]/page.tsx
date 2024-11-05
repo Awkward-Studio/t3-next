@@ -567,6 +567,7 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
                             data={policyProviders}
                             type="Policy Providers"
                             setDataValue={setPolicyProvider}
+                            value={policyProvider}
                           />
                         </div>
                       </div>
@@ -580,6 +581,7 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
                           onChange={(event) =>
                             setPolicyNumber(event.target.value)
                           }
+                          value={policyNumber}
                         />
                       </div>
                     </div>

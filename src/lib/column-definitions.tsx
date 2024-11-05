@@ -207,6 +207,7 @@ export const currentPartsColumns: ColumnDef<CurrentPart>[] = [
   },
   {
     accessorKey: "quantity",
+    header: "Quantity",
   },
   {
     accessorKey: "discountPercentage",

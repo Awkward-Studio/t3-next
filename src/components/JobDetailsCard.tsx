@@ -25,9 +25,7 @@ export default function JobDetailsCard({ data, diagnosis }: any) {
         </div>
         <div className="flex flex-col">
           <div className="font-semibold text-2xl">
-            {purposeOfVisitAndAdvisors.map((visit: any, index: any) => (
-              <div key={index}>{visit.description}</div>
-            ))}
+            {data.jobCard.purposeOfVisit}
           </div>
           <div className="font-semibold text-gray-500">
             {new Date(data.jobCard.$createdAt).toLocaleString()}
