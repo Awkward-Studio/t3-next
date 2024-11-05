@@ -333,9 +333,7 @@ export const InvoicePDF = ({
                 </Text>
               </View>
               <View style={styles.tableCell}>
-                {purposeOfVisitAndAdvisors.map((visit: any, index: any) => (
-                  <Text>{visit.description}</Text>
-                ))}
+                <Text>{jobCard.purposeOfVisit}</Text>
               </View>
             </View>
           </View>
