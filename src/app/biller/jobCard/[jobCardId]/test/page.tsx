@@ -6,7 +6,11 @@ import logo from "../../../../../../public/assets/Logomark.png";
 import { usePathname } from "next/navigation";
 import { getJobCardById, getTempCarById } from "@/lib/appwrite";
 import { Car, CurrentLabour, CurrentPart, JobCard } from "@/lib/definitions";
-import { convertStringsToArray, roundToTwoDecimals, stringToObj } from "@/lib/helper";
+import {
+  convertStringsToArray,
+  roundToTwoDecimals,
+  stringToObj,
+} from "@/lib/helper";
 
 export default function page() {
   const pathname = usePathname();
@@ -41,6 +45,19 @@ export default function page() {
     getJobCardDetails();
   }, []);
 
+  const getData = async () => {
+    await fetch(`http://localhost:3000/tally/updateInvoices`, {
+      method: "POST",
+      body: JSON.stringify({
+        currDateTime: new Date(),
+      }),
+    }).then((result: any) => {
+      result.json().then((invoiceDetails: any) => {
+        console.log("HELLOOO", invoiceDetails);
+      });
+    });
+  };
+
   return (
     <div className="flex  flex-col w-[90%] mx-auto p-8 bg-white border border-gray-300">
       {jobCard && parts && labour && (
@@ -49,7 +66,13 @@ export default function page() {
             <h2 className="text-2xl font-bold">T3 ALL CAR SERVICE</h2>
           </div>
           <div className="flex justify-between font-medium text-right text-sm">
-            <Image src={logo} width={100} height={50} alt="Logo" />
+            <Image
+              src={logo}
+              width={100}
+              height={50}
+              alt="Logo"
+              onClick={getData}
+            />
             <div>
               <h3 className="text-md font-bold">CHAMUNDA MOTORS PVT LTD</h3>
               <p className="text-right text-sm">

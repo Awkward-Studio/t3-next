@@ -74,6 +74,7 @@ import {
 
 export default function jobCard({ params }: { params: { jobCardId: any } }) {
   const pathname = usePathname();
+  console.log("THIS IS THE PATHNAME - ", pathname);
 
   const [jobCard, setJobCard] = useState<JobCard | null>(null); // Properly typed state
   const [car, setCar] = useState<Car | null>(null); // Properly typed state
@@ -95,6 +96,9 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
   const [invoiceCounter, setInvoiceCounter] = useState(0);
 
   const [buttonLoading, setButtonLoading] = useState(false);
+
+  const [isInvoiceCounterIncreased, setIsInvoiceCounterIncreased] =
+    useState(false);
 
   useEffect(() => {
     // console.log("THERE WAS AN EDIT");
@@ -270,6 +274,12 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
       setButtonLoading((prev) => false);
       setCurrentJobCardStatus(3);
 
+      if (!isInvoiceCounterIncreased) {
+        setInvoiceCounter((prev) => prev + 1);
+      }
+
+      setIsInvoiceCounterIncreased(true);
+
       toast("Quote Generated \u2705");
     });
   };
@@ -295,6 +305,12 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
       setButtonLoading((prev) => false);
       setCurrentJobCardStatus(4);
 
+      if (!isInvoiceCounterIncreased) {
+        setInvoiceCounter((prev) => prev + 1);
+      }
+
+      setIsInvoiceCounterIncreased(true);
+
       toast("Pro-Forma Invoice Generated \u2705");
     });
   };
@@ -319,6 +335,12 @@ export default function jobCard({ params }: { params: { jobCardId: any } }) {
       });
       setButtonLoading((prev) => false);
       setCurrentJobCardStatus(5);
+
+      if (!isInvoiceCounterIncreased) {
+        setInvoiceCounter((prev) => prev + 1);
+      }
+
+      setIsInvoiceCounterIncreased(true);
 
       toast("Tax Invoice Generated \u2705");
     });
