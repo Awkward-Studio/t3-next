@@ -188,6 +188,7 @@ export interface Invoice {
   $permissions: string[]; // Assuming it's an array of strings, adjust if different
   $databaseId: string;
   $collectionId: string;
+  jobCardDetails?: JobCard;
 }
 
 export interface TaxObj {

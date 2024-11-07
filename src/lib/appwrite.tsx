@@ -1,7 +1,11 @@
 import { Client, Account, Databases, Query, ID, Storage } from "appwrite";
 import { getCookie } from "cookies-next";
 import ImageKit from "imagekit";
-import { convertStringsToArray, convertToStrings, purposeOfVisits } from "./helper";
+import {
+  convertStringsToArray,
+  convertToStrings,
+  purposeOfVisits,
+} from "./helper";
 
 export const config = {
   endpoint: "https://cloud.appwrite.io/v1",
@@ -136,7 +140,7 @@ export const createTempCar = async (
   carModel: string,
   purposeOfVisitAndAdvisors: string[],
   carsTableId: string,
-  location?: string,
+  location?: string
 ) => {
   try {
     let carStatus = 0;
@@ -180,21 +184,23 @@ export const createJobCard = async (
     const token = getCookie("user");
     const parsedToken = JSON.parse(String(token));
     const advisorEmail = parsedToken.email;
-    
+
     // To update the tempcar status
     const tempCar = await getTempCarById(carId);
     if (!tempCar) {
       console.log("Car not found");
       return null;
     }
-    
-    const purposeOfVisitAndAdvisors = convertStringsToArray(tempCar.purposeOfVisitAndAdvisors);
+
+    const purposeOfVisitAndAdvisors = convertStringsToArray(
+      tempCar.purposeOfVisitAndAdvisors
+    );
     const purposeOfVisit = purposeOfVisitAndAdvisors.find((pov: any) => {
       if (pov.advisorEmail === advisorEmail) return true;
     }).description;
 
-    console.log(purposeOfVisit)
-    
+    console.log(purposeOfVisit);
+
     let result = await databases.createDocument(
       config.databaseId,
       config.jobCardsCollectionId,
@@ -212,7 +218,7 @@ export const createJobCard = async (
         carFuel,
         carOdometer,
         customerAddress,
-        purposeOfVisit
+        purposeOfVisit,
       }
     );
 
@@ -232,7 +238,12 @@ export const createJobCard = async (
       config.databaseId,
       config.tempCarsCollectionId, // collectionId
       carId, // documentId
-      { carStatus: 1, jobCardId: result["$id"], allJobCardIds: allTempCarJobCardIds, purposeOfVisitAndAdvisors: updatedPurposeOfVisitAndAdvisors } // data (optional)
+      {
+        carStatus: 1,
+        jobCardId: result["$id"],
+        allJobCardIds: allTempCarJobCardIds,
+        purposeOfVisitAndAdvisors: updatedPurposeOfVisitAndAdvisors,
+      } // data (optional)
     );
 
     const carHistory = await databases.getDocument(
@@ -367,7 +378,7 @@ export const getJobCardById = async (id: string) => {
       id
     );
 
-    console.log("FETCHED CAR + ", result);
+    // console.log("FETCHED CAR + ", result);
     return result;
   } catch (error: any) {
     console.log(error.message);
@@ -579,6 +590,29 @@ export const getAllInvoices = async () => {
       config.invoicesCollectionId,
       [Query.orderDesc("$createdAt")]
     );
+    return result;
+  } catch (error: any) {
+    console.log(error.message);
+    return null;
+  }
+};
+
+export const getAllTaxInvoicesAfterDateTime = async (dateTimeStamp: any) => {
+  try {
+    let result = await databases.listDocuments(
+      config.databaseId,
+      config.invoicesCollectionId,
+      [
+        // Query.orderAsc("$createdAt"),
+        Query.and([
+          Query.greaterThan("$createdAt", "2024-11-05T00:00:00+00:00"),
+          Query.equal("invoiceType", "Tax Invoice"),
+        ]),
+
+        Query.limit(9999),
+      ]
+    );
+    // console.log("THESE ARE THE NEW INVOICES - ", result);
     return result;
   } catch (error: any) {
     console.log(error.message);
