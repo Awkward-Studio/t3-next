@@ -3,7 +3,7 @@ import {
   getJobCardById,
   getTempCarById,
   imagekit,
-  updateJobCardGatePass,
+ 
 } from "@/lib/appwrite";
 import {
   base64Logo,
@@ -78,11 +78,11 @@ export async function POST(
     console.log("PDF uploaded to ImageKit, URL:", pdfUrl);
 
     // Create a new ReadableStream from the buffer for the response
-    let result = await updateJobCardGatePass(jobCard.$id, pdfUrl);
+    //let result = await updateJobCardGatePass(jobCard.$id, pdfUrl);
 
-    console.log("This is the result - ", result);
+    //console.log("This is the result - ", result);
 
-    return NextResponse.json(result, { status: 201 });
+    //return NextResponse.json(result, { status: 201 });
 
     // return;
   } catch (error) {

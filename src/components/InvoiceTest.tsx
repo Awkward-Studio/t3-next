@@ -222,7 +222,7 @@ export const InvoicePDF = ({
       {jobCard && car && parts && labour && (
         <Page size="A4" style={styles.page}>
           <View style={styles.addressRow}>
-            <Image style={styles.logo} src={logo} alt-text="invoice" />
+            <Image style={styles.logo} src={logo} alt-text={".."} />
             <View style={styles.addressBlock}>
               <Text style={styles.workShopName}>
                 CHANMUNDA MOTORS PVT. LTD.
