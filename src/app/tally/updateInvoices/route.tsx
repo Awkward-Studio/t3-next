@@ -26,8 +26,7 @@ export async function POST(request: NextRequest) {
     );
 
     return NextResponse.json(updatedNewInvoices, { status: 201 });
-
-    // return;
+    
   } catch (error) {
     console.log("Failed");
     console.log(error);
