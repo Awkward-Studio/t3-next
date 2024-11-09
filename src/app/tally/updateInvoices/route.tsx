@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   try {
     const dateTimeStamp = await request.json();
 
-    const result = await getAllTaxInvoicesAfterDateTime(dateTimeStamp);
+    const result = await getAllTaxInvoicesAfterDateTime(dateTimeStamp.last_sync_time);
 
     const newInvoices = result.documents;
 

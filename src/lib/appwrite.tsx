@@ -605,7 +605,7 @@ export const getAllTaxInvoicesAfterDateTime = async (dateTimeStamp: any) => {
       [
         // Query.orderAsc("$createdAt"),
         Query.and([
-          Query.greaterThan("$createdAt", "2024-11-05T00:00:00+00:00"),
+          Query.greaterThan("$createdAt", dateTimeStamp),
           Query.equal("invoiceType", "Tax Invoice"),
         ]),
 
@@ -616,6 +616,7 @@ export const getAllTaxInvoicesAfterDateTime = async (dateTimeStamp: any) => {
     return result;
   } catch (error: any) {
     console.log(error.message);
+    console.log("JIJFOIDEFI")
     return null;
   }
 };
